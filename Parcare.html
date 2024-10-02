@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .parking-lot {
+            display: grid;
+            grid-template-columns: repeat(4, 100px); /* 4 coloane pentru 4 locuri de parcare pe rând */
+            grid-gap: 20px;
+        }
+
+        .parking-spot {
+            width: 100px;
+            height: 150px;
+            background-color: lightgreen;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border-radius: 10px;
+        }
+
+        .occupied {
+            background-color: red;
+        }
+
+        .free {
+            background-color: green;
+        }
+
+        .parking-label {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="parking-lot-container">
+        <div class="parking-label">Parking Lot Status</div>
+        <div class="parking-lot">
+            <!-- Reprezentare grafică a locurilor de parcare -->
+            <div id="spot1" class="parking-spot free">1</div>
+            <div id="spot2" class="parking-spot free">2</div>
+            <div id="spot3" class="parking-spot free">3</div>
+            <div id="spot4" class="parking-spot free">4</div>
+            <div id="spot5" class="parking-spot free">5</div>
+            <div id="spot6" class="parking-spot free">6</div>
+            <div id="spot7" class="parking-spot free">7</div>
+            <div id="spot8" class="parking-spot free">8</div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-database.js"></script>
+
+    <script>
+        // Configurare Firebase
+        var firebaseConfig = {
+            apiKey: "API_KEY",
+            authDomain: "numele-proiectului.firebaseapp.com",
+            databaseURL: "https://numele-proiectului.firebaseio.com",
+            projectId: "numele-proiectului",
+            storageBucket: "numele-proiectului.appspot.com",
+            messagingSenderId: "SENDER_ID",
+            appId: "APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        var database = firebase.database();
+
+        // Funcție pentru actualizarea stării fiecărui loc de parcare
+        function updateSpotStatus(spotId, isOccupied) {
+            var spotElement = document.getElementById(spotId);
+            if (isOccupied === 0) {
+                spotElement.classList.remove('occupied');
+                spotElement.classList.add('free');
+                spotElement.innerText = spotId.replace('spot', '') + " (Free)";
+            } else {
+                spotElement.classList.remove('free');
+                spotElement.classList.add('occupied');
+                spotElement.innerText = spotId.replace('spot', '') + " (Occupied)";
+            }
+        }
+
+        // Actualizare în timp real pentru fiecare loc de parcare
+        database.ref('/parking_spots/spot1').on('value', (snapshot) => {
+            var isOccupied = snapshot.val();
+            updateSpotStatus('spot1', isOccupied);
+        });
+
+        database.ref('/parking_spots/spot2').on('value', (snapshot) => {
+            var isOccupied = snapshot.val();
+            updateSpotStatus('spot2', isOccupied);
+        });
+
+        database.ref('/parking_spots/spot3').on('value', (snapshot) => {
+            var isOccupied = snapshot.val();
+            updateSpotStatus('spot3', isOccupied);
+        });
+
+        database.ref('/parking_spots/spot4').on('value', (snapshot) => {
+            var isOccupied = snapshot.val();
+            updateSpotStatus('spot4', isOccupied);
+        });
+
+        // Poți adăuga mai multe locuri de parcare, similar cu cele de mai sus
+    </script>
+</body>
+</html>
