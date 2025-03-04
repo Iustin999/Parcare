@@ -1,78 +1,129 @@
-function updateCarPositions() {
-    let parkingImage = document.getElementById("parkingImage");
-    if (!parkingImage) return;
-
-    let parkingRect = parkingImage.getBoundingClientRect(); // Dimensiunea imaginii parcării
-    let isDesktop = window.innerWidth > 768;
-
-    let positions = isDesktop ? [ // Coordonate pentru desktop (rotit 90°)
-        { x: 0.80, y: 0.30, rotate: "-43deg" },
-        { x: 0.65, y: 0.30, rotate: "-43deg" },
-        { x: 0.50, y: 0.30, rotate: "-43deg" },
-        { x: 0.35, y: 0.30, rotate: "-43deg" },
-        { x: 0.20, y: 0.30, rotate: "-43deg" }
-    ] : [ // Coordonate pentru telefon (vertical)
-        { x: 0.30, y: 0.85, rotate: "-133deg" },
-        { x: 0.30, y: 0.70, rotate: "-133deg" },
-        { x: 0.30, y: 0.55, rotate: "-133deg" },
-        { x: 0.30, y: 0.40, rotate: "-133deg" },
-        { x: 0.30, y: 0.25, rotate: "-133deg" }
-    ];
-
-    for (let i = 0; i < 5; i++) {
-        let car = document.getElementById(`m${i+1}`);
-        if (car) {
-            let carX = parkingRect.left + parkingRect.width * positions[i].x;
-            let carY = parkingRect.top + parkingRect.height * positions[i].y;
-
-            car.style.position = "absolute";
-            car.style.width = parkingRect.width * 0.10 + "px"; // 10% din lățimea parcării
-            car.style.top = carY + "px";
-            car.style.left = carX + "px";
-            car.style.transform = `rotate(${positions[i].rotate})`;
-            car.style.display = "block"; // Asigură că apare
-            car.style.zIndex = "10"; // Asigură că sunt deasupra parcării
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcare Live</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-    }
-}
-
-async function fetchParkingData() {
-    let sheetID = "1VesxOsLpI112PZk0ZQ6noxfMe79oDfDNuVwkTzm_Idw"; // Pune ID-ul corect
-    let url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
-
-    try {
-        let response = await fetch(url);
-        let text = await response.text();
-        let json = JSON.parse(text.substring(47, text.length - 2));
-
-        let cellValue = json.table.rows[0].c[0];
-        if (!cellValue || !cellValue.v) {
-            console.error("⚠️ Eroare: Celula din Google Sheets nu conține date!");
-            return;
+        body {
+            background: url('fundalul.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
         }
-
-        let codBinar = String(cellValue.v).trim();
-        console.log("✅ Cod Binar extras:", codBinar);
-
-        if (codBinar.length !== 5) {
-            console.error("⚠️ Eroare: Codul binar nu are exact 5 caractere!");
-            return;
+        .container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
         }
-
-        for (let i = 0; i < 5; i++) {
-            let car = document.getElementById(`m${i+1}`);
-            if (car) {
-                car.style.display = codBinar[i] === "1" ? "block" : "none";
-                console.log(`✅ Loc ${i+1}: ${codBinar[i] === "1" ? "Ocupat" : "Liber"}`);
+        .parking {
+            width: 80%; /* Redus cu 10% față de 90% */
+            max-width: 900px; /* Ajustăm pentru desktop */
+            height: auto;
+            transition: transform 0.5s ease-in-out;
+            display: block;
+            margin: 0 auto;
+        }
+        .car {
+            position: absolute;
+            display: none; /* Ascuns implicit */
+            z-index: 10; /* Asigură că mașinile sunt deasupra parcării */
+        }
+        @media (min-width: 768px) {
+            .parking {
+                transform: rotate(-90deg);
             }
         }
-    } catch (error) {
-        console.error("❌ Eroare la preluarea datelor:", error);
-    }
-}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img id="parkingImage" class="parking" src="ParcareM1.JPG" alt="Parcare">
+        <img id="m1" class="car" src="m1.png">
+        <img id="m2" class="car" src="m2.png">
+        <img id="m3" class="car" src="m3.png">
+        <img id="m4" class="car" src="m4.png">
+        <img id="m5" class="car" src="m5.png">
+    </div>
+    <script>
+        function updateCarPositions() {
+            let isDesktop = window.innerWidth > 768;
+            let positions = isDesktop ? [
+                { top: "120px", left: "458px", rotate: "-43deg" },
+                { top: "120px", left: "363px", rotate: "-43deg" },
+                { top: "120px", left: "275px", rotate: "-43deg" },
+                { top: "120px", left: "188px", rotate: "-43deg" },
+                { top: "120px", left: "103px", rotate: "-43deg" }
+            ] : [
+                { top: "458px", left: "120px", rotate: "-133deg" },
+                { top: "363px", left: "120px", rotate: "-133deg" },
+                { top: "275px", left: "120px", rotate: "-133deg" },
+                { top: "188px", left: "120px", rotate: "-133deg" },
+                { top: "103px", left: "120px", rotate: "-133deg" }
+            ];
+            
+            for (let i = 0; i < 5; i++) {
+                let car = document.getElementById(`m${i+1}`);
+                if (car) {
+                    car.style.position = "absolute";
+                    car.style.width = "137px";
+                    car.style.top = positions[i].top;
+                    car.style.left = positions[i].left;
+                    car.style.transform = `rotate(${positions[i].rotate})`;
+                }
+            }
+        }
+        
+        async function fetchParkingData() {
+            let sheetID = "1VesxOsLpI112PZk0ZQ6noxfMe79oDfDNuVwkTzm_Idw"; // Pune ID-ul corect
+            let url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
 
-window.addEventListener("resize", updateCarPositions);
-window.addEventListener("load", updateCarPositions);
-updateCarPositions();
-setInterval(fetchParkingData, 5000);
-fetchParkingData();
+            try {
+                let response = await fetch(url);
+                let text = await response.text();
+                let json = JSON.parse(text.substring(47, text.length - 2));
+
+                let cellValue = json.table.rows[0].c[0];
+                if (!cellValue || !cellValue.v) {
+                    console.error("⚠️ Eroare: Celula din Google Sheets nu conține date!");
+                    return;
+                }
+
+                let codBinar = String(cellValue.v).trim();
+
+                console.log("✅ Cod Binar extras:", codBinar);
+
+                if (codBinar.length !== 5) {
+                    console.error("⚠️ Eroare: Codul binar nu are exact 5 caractere!");
+                    return;
+                }
+
+                for (let i = 0; i < 5; i++) {
+                    let car = document.getElementById(`m${i+1}`);
+                    if (car) {
+                        car.style.display = codBinar[i] === "1" ? "block" : "none";
+                        console.log(`✅ Loc ${i+1}: ${codBinar[i] === "1" ? "Ocupat" : "Liber"}`);
+                    }
+                }
+            } catch (error) {
+                console.error("❌ Eroare la preluarea datelor:", error);
+            }
+        }
+
+        window.addEventListener("resize", updateCarPositions);
+        updateCarPositions();
+        setInterval(fetchParkingData, 5000);
+        fetchParkingData();
+    </script>
+</body>
+</html>
