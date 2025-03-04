@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parcare Live - Setare Coordonate</title>
+    <title>Parcare Live</title>
     <style>
         * {
             margin: 0;
@@ -28,34 +28,85 @@
             height: 100%;
             display: block;
         }
+        .car {
+            position: absolute;
+            transform-origin: center;
+            display: none; /* Implicit, ascunse până când codul binar spune altfel */
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
-    <div class="parking-container" id="parkingContainer">
+    <div class="parking-container">
         <img id="parkingImage" src="ParcareM1.JPG" alt="Parcare">
+        <img id="m1" class="car" src="m1.png">
+        <img id="m2" class="car" src="m2.png">
+        <img id="m3" class="car" src="m3.png">
+        <img id="m4" class="car" src="m4.png">
+        <img id="m5" class="car" src="m5.png">
     </div>
 
     <script>
-        function addCar(id, x, y, width, height, rotate) {
-            let car = document.createElement("img");
-            car.src = `m${id}.png`;
-            car.style.position = "absolute";
-            car.style.width = `${width}px`;
-            car.style.height = `${height}px`;
-            car.style.top = `${y}px`;
-            car.style.left = `${x}px`;
-            car.style.transform = `rotate(${rotate}deg)`;
-            car.style.zIndex = "10";
-            document.querySelector(".parking-container").appendChild(car);
-            console.log(`✅ Adăugată: M${id} la X=${x}, Y=${y}, Width=${width}, Height=${height}, Rotate=${rotate}°`);
+        // Pozițiile exacte ale mașinilor raportate la imaginea parcării
+        const carPositions = [
+            { x: 220, y: 1410, width: 590, height: 600, rotate: -133 },
+            { x: 220, y: 1080, width: 600, height: 600, rotate: -133 },
+            { x: 220, y: 770, width: 580, height: 585, rotate: -133 },
+            { x: 220, y: 450, width: 550, height: 590, rotate: -133 },
+            { x: 220, y: 130, width: 550, height: 590, rotate: -133 }
+        ];
+
+        function updateCarPositions() {
+            for (let i = 0; i < 5; i++) {
+                let car = document.getElementById(`m${i+1}`);
+                if (car) {
+                    car.style.left = `${carPositions[i].x}px`;
+                    car.style.top = `${carPositions[i].y}px`;
+                    car.style.width = `${carPositions[i].width}px`;
+                    car.style.height = `${carPositions[i].height}px`;
+                    car.style.transform = `rotate(${carPositions[i].rotate}deg)`;
+                }
+            }
         }
 
-        document.getElementById("parkingContainer").addEventListener("click", function(event) {
-            let rect = event.target.getBoundingClientRect();
-            let x = Math.round(event.clientX - rect.left);
-            let y = Math.round(event.clientY - rect.top);
-            console.log(`📍 Click detectat la: X = ${x}, Y = ${y}`);
-        });
+        async function fetchParkingData() {
+            let sheetID = "1aBcD3EfGhIjKlMnOpQrStUvWxYz123456"; // Pune ID-ul corect
+            let url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
+
+            try {
+                let response = await fetch(url);
+                let text = await response.text();
+                let json = JSON.parse(text.substring(47, text.length - 2));
+
+                let cellValue = json.table.rows[0].c[0];
+                if (!cellValue || !cellValue.v) {
+                    console.error("⚠️ Eroare: Celula din Google Sheets nu conține date!");
+                    return;
+                }
+
+                let codBinar = String(cellValue.v).trim();
+                console.log("✅ Cod Binar extras:", codBinar);
+
+                if (codBinar.length !== 5) {
+                    console.error("⚠️ Eroare: Codul binar nu are exact 5 caractere!");
+                    return;
+                }
+
+                for (let i = 0; i < 5; i++) {
+                    let car = document.getElementById(`m${i+1}`);
+                    if (car) {
+                        car.style.display = codBinar[i] === "1" ? "block" : "none";
+                        console.log(`✅ Loc ${i+1}: ${codBinar[i] === "1" ? "Ocupat" : "Liber"}`);
+                    }
+                }
+            } catch (error) {
+                console.error("❌ Eroare la preluarea datelor:", error);
+            }
+        }
+
+        updateCarPositions();
+        setInterval(fetchParkingData, 5000);
+        fetchParkingData();
     </script>
 </body>
 </html>
