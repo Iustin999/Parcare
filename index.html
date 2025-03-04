@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parcare Live</title>
+    <title>Parcare Generată</title>
     <style>
         * {
             margin: 0;
@@ -11,81 +11,66 @@
             box-sizing: border-box;
         }
         body {
-            background: url('fundalul.jpg') no-repeat center center fixed;
-            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
+            background: #2c2c2c;
         }
-        .parking-container {
-            position: relative;
-            width: 90vw;
-            max-width: 1170px;
-            aspect-ratio: 1170 / 2080;
-            transition: transform 0.5s ease-in-out;
-        }
-        .parking-container img {
-            width: 100%;
+        canvas {
+            max-width: 90vw;
+            max-height: 90vh;
+            width: auto;
             height: auto;
-            display: block;
-        }
-        .car {
-            position: absolute;
-            transform-origin: center;
-            display: none;
-            z-index: 10;
-        }
-        @media (min-width: 768px) {
-            .parking-container {
-                transform: rotate(-90deg);
-                width: 80vh;
-                height: auto;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="parking-container" id="parkingContainer">
-        <img id="parkingImage" src="ParcareM1.JPG" alt="Parcare">
-        <img id="m1" class="car" src="m1.png">
-        <img id="m2" class="car" src="m2.png">
-        <img id="m3" class="car" src="m3.png">
-        <img id="m4" class="car" src="m4.png">
-        <img id="m5" class="car" src="m5.png">
-    </div>
+    <canvas id="parkingCanvas"></canvas>
 
     <script>
-        function updateCarPositions() {
-            let parkingContainer = document.getElementById("parkingContainer");
-            let parkingRect = parkingContainer.getBoundingClientRect();
-            let isDesktop = window.innerWidth > 768;
+        const carImages = [
+            "m1.png", "m2.png", "m3.png", "m4.png", "m5.png"
+        ];
+        const parkingImageSrc = "ParcareM1.JPG";
+        
+        // Poziții exacte ale mașinilor raportate la parcarea de referință (1170x2080)
+        const carPositions = [
+            { x: 220, y: 1410, width: 590, height: 600, rotate: -133 },
+            { x: 220, y: 1080, width: 600, height: 600, rotate: -133 },
+            { x: 220, y: 770, width: 580, height: 585, rotate: -133 },
+            { x: 220, y: 450, width: 550, height: 590, rotate: -133 },
+            { x: 220, y: 130, width: 550, height: 590, rotate: -133 }
+        ];
 
-            const carPositions = isDesktop ? [
-                { x: 0.812, y: 0.322, width: 0.50, height: 0.28, rotate: -43 },
-                { x: 0.812, y: 0.469, width: 0.51, height: 0.28, rotate: -43 },
-                { x: 0.812, y: 0.615, width: 0.49, height: 0.28, rotate: -43 },
-                { x: 0.812, y: 0.761, width: 0.47, height: 0.28, rotate: -43 },
-                { x: 0.812, y: 0.900, width: 0.47, height: 0.28, rotate: -43 }
-            ] : [
-                { x: 0.188, y: 0.678, width: 0.50, height: 0.28, rotate: -133 },
-                { x: 0.188, y: 0.519, width: 0.51, height: 0.28, rotate: -133 },
-                { x: 0.188, y: 0.370, width: 0.49, height: 0.28, rotate: -133 },
-                { x: 0.188, y: 0.216, width: 0.47, height: 0.28, rotate: -133 },
-                { x: 0.188, y: 0.062, width: 0.47, height: 0.28, rotate: -133 }
-            ];
+        function drawParking(codBinar) {
+            const canvas = document.getElementById("parkingCanvas");
+            const ctx = canvas.getContext("2d");
 
-            for (let i = 0; i < 5; i++) {
-                let car = document.getElementById(`m${i+1}`);
-                if (car) {
-                    car.style.left = `${parkingRect.left + parkingRect.width * carPositions[i].x}px`;
-                    car.style.top = `${parkingRect.top + parkingRect.height * carPositions[i].y}px`;
-                    car.style.width = `${parkingRect.width * carPositions[i].width}px`;
-                    car.style.height = `${parkingRect.height * carPositions[i].height}px`;
-                    car.style.transform = `rotate(${carPositions[i].rotate}deg)`;
+            const parkingImg = new Image();
+            parkingImg.src = parkingImageSrc;
+            parkingImg.onload = () => {
+                canvas.width = parkingImg.width;
+                canvas.height = parkingImg.height;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(parkingImg, 0, 0, canvas.width, canvas.height);
+
+                // Desenăm mașinile doar pentru locurile ocupate
+                for (let i = 0; i < carPositions.length; i++) {
+                    if (codBinar[i] === "1") {
+                        const carImg = new Image();
+                        carImg.src = carImages[i];
+                        carImg.onload = () => {
+                            ctx.save();
+                            ctx.translate(carPositions[i].x + carPositions[i].width / 2, carPositions[i].y + carPositions[i].height / 2);
+                            ctx.rotate((carPositions[i].rotate * Math.PI) / 180);
+                            ctx.drawImage(carImg, -carPositions[i].width / 2, -carPositions[i].height / 2, carPositions[i].width, carPositions[i].height);
+                            ctx.restore();
+                        };
+                    }
                 }
-            }
+            };
         }
 
         async function fetchParkingData() {
@@ -99,34 +84,22 @@
 
                 let cellValue = json.table.rows[0].c[0];
                 if (!cellValue || !cellValue.v) {
-                    console.error("⚠️ Eroare: Celula din Google Sheets nu conține date!");
                     return;
                 }
 
                 let codBinar = String(cellValue.v).trim();
-                console.log("✅ Cod Binar extras:", codBinar);
-
                 if (codBinar.length !== 5) {
-                    console.error("⚠️ Eroare: Codul binar nu are exact 5 caractere!");
                     return;
                 }
 
-                for (let i = 0; i < 5; i++) {
-                    let car = document.getElementById(`m${i+1}`);
-                    if (car) {
-                        car.style.display = codBinar[i] === "1" ? "block" : "none";
-                        console.log(`✅ Loc ${i+1}: ${codBinar[i] === "1" ? "Ocupat" : "Liber"}`);
-                    }
-                }
+                drawParking(codBinar);
             } catch (error) {
                 console.error("❌ Eroare la preluarea datelor:", error);
             }
         }
 
-        window.addEventListener("resize", updateCarPositions);
-        updateCarPositions();
-        setInterval(fetchParkingData, 5000);
         fetchParkingData();
+        setInterval(fetchParkingData, 5000);
     </script>
 </body>
 </html>
