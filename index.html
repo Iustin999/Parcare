@@ -1,35 +1,74 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monitorizare Parcare</title>
-  <style>
-    body {
-      background-image: url('fundalul.jpg'); /* Calea către imagine */
-      background-size: cover; /* Ajustează fundalul pentru a acoperi întregul ecran */
-      background-repeat: no-repeat; /* Fundalul nu se va repeta */
-      background-position: center center; /* Poziționare fundal */
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    h1 {
-      text-align: center;
-      color: black;
-      margin-top: 50px;
-    }
-    img {
-      width: 80%;
-      height: auto;
-      display: block;
-      margin: 50px auto;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcare Live</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: url('fundalul.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            position: relative;
+        }
+        .parking {
+            width: 100%;
+            max-width: 1170px;
+            height: auto;
+            transition: transform 0.5s ease-in-out;
+        }
+        .car {
+            position: absolute;
+            width: 80px; /* Ajustează dimensiunea în funcție de scalare */
+            height: auto;
+            display: none; /* Ascuns implicit */
+        }
+        @media (min-width: 768px) {
+            .parking {
+                transform: rotate(-90deg);
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Au ramas 2 locuri libere</h1>
-  <img src="parcare_3_masini.jpg" alt="Parcare cu 3 mașini parcate">
+    <div class="container">
+        <img id="parkingImage" class="parking" src="ParcareM1.JPG" alt="Parcare">
+        <img id="m1" class="car" src="m1.png" style="top: 80%; left: 30%;">
+        <img id="m2" class="car" src="m2.png" style="top: 65%; left: 30%;">
+        <img id="m3" class="car" src="m3.png" style="top: 50%; left: 30%;">
+        <img id="m4" class="car" src="m4.png" style="top: 35%; left: 30%;">
+        <img id="m5" class="car" src="m5.png" style="top: 20%; left: 30%;">
+    </div>
+    <script>
+        async function fetchParkingData() {
+            let sheetID = "1aBcD3EfGhIjKlMnOpQrStUvWxYz123456"; // Pune ID-ul Google Sheets
+            let url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
+
+            let response = await fetch(url);
+            let text = await response.text();
+            let json = JSON.parse(text.substring(47, text.length - 2));
+            let codBinar = json.table.rows[0].c[0].v;
+            console.log("Cod Binar:", codBinar);
+
+            for (let i = 0; i < 5; i++) {
+                let car = document.getElementById(`m${i+1}`);
+                car.style.display = codBinar[i] === "1" ? "block" : "none";
+            }
+        }
+
+        setInterval(fetchParkingData, 5000);
+        fetchParkingData();
+    </script>
 </body>
 </html>
-
