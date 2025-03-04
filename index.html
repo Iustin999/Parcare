@@ -22,8 +22,9 @@
         .parking-container {
             position: relative;
             width: 90vw; /* Parcarea ocupă 90% din lățimea ecranului */
-            max-width: 1170px; /* Să nu depășească dimensiunea originală */
-            aspect-ratio: 1170 / 2080; /* Păstrează proporțiile originale */
+            max-width: 1170px;
+            aspect-ratio: 1170 / 2080;
+            transition: transform 0.5s ease-in-out;
         }
         .parking-container img {
             width: 100%;
@@ -32,15 +33,21 @@
         }
         .car {
             position: absolute;
-            width: 10%; /* Ajustăm dinamic */
             transform-origin: center;
-            display: none; /* Implicit, ascunse până când codul binar spune altfel */
+            display: none;
             z-index: 10;
+        }
+        @media (min-width: 768px) {
+            .parking-container {
+                transform: rotate(-90deg);
+                width: 80vh; /* Ajustează pentru desktop */
+                height: auto;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="parking-container">
+    <div class="parking-container" id="parkingWrapper">
         <img id="parkingImage" src="ParcareM1.JPG" alt="Parcare">
         <img id="m1" class="car" src="m1.png">
         <img id="m2" class="car" src="m2.png">
@@ -50,17 +57,24 @@
     </div>
 
     <script>
-        // Poziții relative la dimensiunea imaginii parcării
-        const carPositions = [
-            { x: 0.188, y: 0.678, width: 0.50, height: 0.28, rotate: -133 },
-            { x: 0.188, y: 0.519, width: 0.51, height: 0.28, rotate: -133 },
-            { x: 0.188, y: 0.370, width: 0.49, height: 0.28, rotate: -133 },
-            { x: 0.188, y: 0.216, width: 0.47, height: 0.28, rotate: -133 },
-            { x: 0.188, y: 0.062, width: 0.47, height: 0.28, rotate: -133 }
-        ];
-
         function updateCarPositions() {
-            let parkingRect = document.getElementById("parkingImage").getBoundingClientRect();
+            let parkingImage = document.getElementById("parkingImage");
+            let parkingRect = parkingImage.getBoundingClientRect();
+            let isDesktop = window.innerWidth > 768;
+
+            const carPositions = isDesktop ? [
+                { x: 0.678, y: 0.812, width: 0.50, height: 0.28, rotate: -43 },
+                { x: 0.519, y: 0.812, width: 0.51, height: 0.28, rotate: -43 },
+                { x: 0.370, y: 0.812, width: 0.49, height: 0.28, rotate: -43 },
+                { x: 0.216, y: 0.812, width: 0.47, height: 0.28, rotate: -43 },
+                { x: 0.062, y: 0.812, width: 0.47, height: 0.28, rotate: -43 }
+            ] : [
+                { x: 0.188, y: 0.678, width: 0.50, height: 0.28, rotate: -133 },
+                { x: 0.188, y: 0.519, width: 0.51, height: 0.28, rotate: -133 },
+                { x: 0.188, y: 0.370, width: 0.49, height: 0.28, rotate: -133 },
+                { x: 0.188, y: 0.216, width: 0.47, height: 0.28, rotate: -133 },
+                { x: 0.188, y: 0.062, width: 0.47, height: 0.28, rotate: -133 }
+            ];
 
             for (let i = 0; i < 5; i++) {
                 let car = document.getElementById(`m${i+1}`);
