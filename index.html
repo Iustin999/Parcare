@@ -21,7 +21,7 @@
         }
         .parking-container {
             position: relative;
-            width: 90vw; /* Parcarea ocupă 90% din lățimea ecranului */
+            width: 90vw;
             max-width: 1170px;
             aspect-ratio: 1170 / 2080;
             transition: transform 0.5s ease-in-out;
@@ -40,14 +40,14 @@
         @media (min-width: 768px) {
             .parking-container {
                 transform: rotate(-90deg);
-                width: 80vh; /* Ajustează pentru desktop */
+                width: 80vh;
                 height: auto;
             }
         }
     </style>
 </head>
 <body>
-    <div class="parking-container" id="parkingWrapper">
+    <div class="parking-container" id="parkingContainer">
         <img id="parkingImage" src="ParcareM1.JPG" alt="Parcare">
         <img id="m1" class="car" src="m1.png">
         <img id="m2" class="car" src="m2.png">
@@ -58,16 +58,16 @@
 
     <script>
         function updateCarPositions() {
-            let parkingImage = document.getElementById("parkingImage");
-            let parkingRect = parkingImage.getBoundingClientRect();
+            let parkingContainer = document.getElementById("parkingContainer");
+            let parkingRect = parkingContainer.getBoundingClientRect();
             let isDesktop = window.innerWidth > 768;
 
             const carPositions = isDesktop ? [
-                { x: 0.678, y: 0.812, width: 0.50, height: 0.28, rotate: -43 },
-                { x: 0.519, y: 0.812, width: 0.51, height: 0.28, rotate: -43 },
-                { x: 0.370, y: 0.812, width: 0.49, height: 0.28, rotate: -43 },
-                { x: 0.216, y: 0.812, width: 0.47, height: 0.28, rotate: -43 },
-                { x: 0.062, y: 0.812, width: 0.47, height: 0.28, rotate: -43 }
+                { x: 0.812, y: 0.322, width: 0.50, height: 0.28, rotate: -43 },
+                { x: 0.812, y: 0.469, width: 0.51, height: 0.28, rotate: -43 },
+                { x: 0.812, y: 0.615, width: 0.49, height: 0.28, rotate: -43 },
+                { x: 0.812, y: 0.761, width: 0.47, height: 0.28, rotate: -43 },
+                { x: 0.812, y: 0.900, width: 0.47, height: 0.28, rotate: -43 }
             ] : [
                 { x: 0.188, y: 0.678, width: 0.50, height: 0.28, rotate: -133 },
                 { x: 0.188, y: 0.519, width: 0.51, height: 0.28, rotate: -133 },
