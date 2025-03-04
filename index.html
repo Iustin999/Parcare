@@ -27,8 +27,8 @@
             width: 100%;
         }
         .parking {
-            width: 90%; /* Mărită pe desktop */
-            max-width: 1050px; /* Ajustăm pentru desktop */
+            width: 80%; /* Redus cu 10% față de 90% */
+            max-width: 900px; /* Ajustăm pentru desktop */
             height: auto;
             transition: transform 0.5s ease-in-out;
             display: block;
@@ -36,7 +36,7 @@
         }
         .car {
             position: absolute;
-            width: 80px; /* Ajustează dimensiunea în funcție de scalare */
+            width: 72px; /* Redus cu 10% față de 80px */
             height: auto;
             display: none; /* Ascuns implicit */
         }
@@ -61,15 +61,21 @@
             let sheetID = "1VesxOsLpI112PZk0ZQ6noxfMe79oDfDNuVwkTzm_Idw"; // Pune ID-ul Google Sheets
             let url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
 
-            let response = await fetch(url);
-            let text = await response.text();
-            let json = JSON.parse(text.substring(47, text.length - 2));
-            let codBinar = json.table.rows[0].c[0].v;
-            console.log("Cod Binar:", codBinar);
+            try {
+                let response = await fetch(url);
+                let text = await response.text();
+                let json = JSON.parse(text.substring(47, text.length - 2));
+                let codBinar = json.table.rows[0].c[0].v;
+                console.log("Cod Binar:", codBinar);
 
-            for (let i = 0; i < 5; i++) {
-                let car = document.getElementById(`m${i+1}`);
-                car.style.display = codBinar[i] === "1" ? "block" : "none";
+                for (let i = 0; i < 5; i++) {
+                    let car = document.getElementById(`m${i+1}`);
+                    if (car) {
+                        car.style.display = codBinar[i] === "1" ? "block" : "none";
+                    }
+                }
+            } catch (error) {
+                console.error("Eroare la preluarea datelor:", error);
             }
         }
 
