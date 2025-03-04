@@ -21,25 +21,27 @@
         }
         .container {
             position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
+            width: 400px;  /* Referință mobil */
+            height: 700px;
+            max-width: 90vw;
+            max-height: 90vh;
         }
         .parking {
-            width: 80%; /* Redus cu 10% față de 90% */
-            max-width: 900px; /* Ajustăm pentru desktop */
-            height: auto;
-            transition: transform 0.5s ease-in-out;
+            width: 100%;
+            height: 100%;
             display: block;
-            margin: 0 auto;
+            transition: transform 0.5s ease-in-out;
         }
         .car {
             position: absolute;
-            display: none; /* Ascuns implicit */
-            z-index: 10; /* Asigură că mașinile sunt deasupra parcării */
+            display: none;
+            transform-origin: center center;
         }
         @media (min-width: 768px) {
+            .container {
+                width: 700px;
+                height: 400px;
+            }
             .parking {
                 transform: rotate(-90deg);
             }
@@ -55,37 +57,44 @@
         <img id="m4" class="car" src="m4.png">
         <img id="m5" class="car" src="m5.png">
     </div>
+
     <script>
         function updateCarPositions() {
+            let container = document.querySelector('.container');
             let isDesktop = window.innerWidth > 768;
-            let positions = isDesktop ? [
-                { top: "120px", left: "458px", rotate: "-43deg" },
-                { top: "120px", left: "363px", rotate: "-43deg" },
-                { top: "120px", left: "275px", rotate: "-43deg" },
-                { top: "120px", left: "188px", rotate: "-43deg" },
-                { top: "120px", left: "103px", rotate: "-43deg" }
-            ] : [
-                { top: "458px", left: "120px", rotate: "-133deg" },
-                { top: "363px", left: "120px", rotate: "-133deg" },
-                { top: "275px", left: "120px", rotate: "-133deg" },
-                { top: "188px", left: "120px", rotate: "-133deg" },
-                { top: "103px", left: "120px", rotate: "-133deg" }
+            let widthRatio = container.clientWidth / (isDesktop ? 700 : 400);
+            let heightRatio = container.clientHeight / (isDesktop ? 400 : 700);
+
+            let positions = [
+                { top: 458, left: 120, rotate: -133, width: 137 },
+                { top: 363, left: 120, rotate: -133, width: 143 },
+                { top: 275, left: 120, rotate: -133, width: 141 },
+                { top: 188, left: 120, rotate: -133, width: 138 },
+                { top: 103, left: 120, rotate: -133, width: 135 }
             ];
-            
+
             for (let i = 0; i < 5; i++) {
                 let car = document.getElementById(`m${i+1}`);
                 if (car) {
-                    car.style.position = "absolute";
-                    car.style.width = "137px";
-                    car.style.top = positions[i].top;
-                    car.style.left = positions[i].left;
-                    car.style.transform = `rotate(${positions[i].rotate})`;
+                    if (isDesktop) {
+                        // Pe desktop, schimbăm coordonatele (top devine left și invers)
+                        car.style.width = `${positions[i].width * heightRatio}px`;
+                        car.style.left = `${positions[i].top * widthRatio}px`;  
+                        car.style.top = `${(400 - positions[i].left) * heightRatio}px`;
+                        car.style.transform = `rotate(${positions[i].rotate + 90}deg)`;
+                    } else {
+                        // Pe mobil, coordonatele rămân normale
+                        car.style.width = `${positions[i].width * widthRatio}px`;
+                        car.style.top = `${positions[i].top * heightRatio}px`;
+                        car.style.left = `${positions[i].left * widthRatio}px`;
+                        car.style.transform = `rotate(${positions[i].rotate}deg)`;
+                    }
                 }
             }
         }
-        
+
         async function fetchParkingData() {
-            let sheetID = "1VesxOsLpI112PZk0ZQ6noxfMe79oDfDNuVwkTzm_Idw"; // Pune ID-ul corect
+            let sheetID = "1VesxOsLpI112PZk0ZQ6noxfMe79oDfDNuVwkTzm_Idw";
             let url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
 
             try {
@@ -100,7 +109,6 @@
                 }
 
                 let codBinar = String(cellValue.v).trim();
-
                 console.log("✅ Cod Binar extras:", codBinar);
 
                 if (codBinar.length !== 5) {
@@ -121,9 +129,12 @@
         }
 
         window.addEventListener("resize", updateCarPositions);
-        updateCarPositions();
+        window.addEventListener("load", () => {
+            updateCarPositions();
+            fetchParkingData();
+        });
+
         setInterval(fetchParkingData, 5000);
-        fetchParkingData();
     </script>
 </body>
 </html>
