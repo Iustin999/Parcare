@@ -66,13 +66,8 @@
             parkingImg.src = parkingImageSrc;
             parkingImg.onload = () => {
                 let isDesktop = window.innerWidth > 768;
-                if (isDesktop) {
-                    canvas.width = parkingImg.height; // Rotește
-                    canvas.height = parkingImg.width;
-                } else {
-                    canvas.width = parkingImg.width;
-                    canvas.height = parkingImg.height;
-                }
+                canvas.width = isDesktop ? parkingImg.height : parkingImg.width;
+                canvas.height = isDesktop ? parkingImg.width : parkingImg.height;
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -99,7 +94,7 @@
                                 let rotatedY = carPositions[i].x;
 
                                 ctx.translate(rotatedX + carPositions[i].width / 2, rotatedY + carPositions[i].height / 2);
-                                ctx.rotate((-43 * Math.PI) / 180);
+                                ctx.rotate((-133 * Math.PI) / 180);
                             } else {
                                 ctx.translate(carPositions[i].x + carPositions[i].width / 2, carPositions[i].y + carPositions[i].height / 2);
                                 ctx.rotate((carPositions[i].rotate * Math.PI) / 180);
