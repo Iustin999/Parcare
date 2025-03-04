@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parcare Live</title>
+    <title>Parcare Live - Setare Coordonate</title>
     <style>
         * {
             margin: 0;
@@ -11,130 +11,43 @@
             box-sizing: border-box;
         }
         body {
-            background: url('fundalul.jpg') no-repeat center center fixed;
-            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background: #2c2c2c; /* Fundal neutru */
             overflow: hidden;
         }
-        .container {
+        .parking-container {
             position: relative;
-            width: 400px;  /* Referință mobil */
-            height: 700px;
-            max-width: 90vw;
-            max-height: 90vh;
+            width: 1170px;
+            height: 2080px;
         }
-        .parking {
+        .parking-container img {
             width: 100%;
             height: 100%;
             display: block;
-            transition: transform 0.5s ease-in-out;
-        }
-        .car {
-            position: absolute;
-            display: none;
-            transform-origin: center center;
-        }
-        @media (min-width: 768px) {
-            .container {
-                width: 700px;
-                height: 400px;
-            }
-            .parking {
-                transform: rotate(-90deg);
-            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <img id="parkingImage" class="parking" src="ParcareM1.JPG" alt="Parcare">
-        <img id="m1" class="car" src="m1.png">
-        <img id="m2" class="car" src="m2.png">
-        <img id="m3" class="car" src="m3.png">
-        <img id="m4" class="car" src="m4.png">
-        <img id="m5" class="car" src="m5.png">
+    <div class="parking-container">
+        <img id="parkingImage" src="ParcareM1.JPG" alt="Parcare">
     </div>
 
     <script>
-        function updateCarPositions() {
-            let container = document.querySelector('.container');
-            let isDesktop = window.innerWidth > 768;
-            let widthRatio = container.clientWidth / (isDesktop ? 700 : 400);
-            let heightRatio = container.clientHeight / (isDesktop ? 400 : 700);
-
-            let positions = [
-                { top: 458, left: 120, rotate: -133, width: 137 },
-                { top: 363, left: 120, rotate: -133, width: 143 },
-                { top: 275, left: 120, rotate: -133, width: 141 },
-                { top: 188, left: 120, rotate: -133, width: 138 },
-                { top: 103, left: 120, rotate: -133, width: 135 }
-            ];
-
-            for (let i = 0; i < 5; i++) {
-                let car = document.getElementById(`m${i+1}`);
-                if (car) {
-                    if (isDesktop) {
-                        // Pe desktop, schimbăm coordonatele (top devine left și invers)
-                        car.style.width = `${positions[i].width * heightRatio}px`;
-                        car.style.left = `${positions[i].top * widthRatio}px`;  
-                        car.style.top = `${(400 - positions[i].left) * heightRatio}px`;
-                        car.style.transform = `rotate(${positions[i].rotate + 90}deg)`;
-                    } else {
-                        // Pe mobil, coordonatele rămân normale
-                        car.style.width = `${positions[i].width * widthRatio}px`;
-                        car.style.top = `${positions[i].top * heightRatio}px`;
-                        car.style.left = `${positions[i].left * widthRatio}px`;
-                        car.style.transform = `rotate(${positions[i].rotate}deg)`;
-                    }
-                }
-            }
+        function addCar(id, x, y, width, rotate) {
+            let car = document.createElement("img");
+            car.src = `m${id}.png`; // Imaginea mașinii
+            car.style.position = "absolute";
+            car.style.width = `${width}px`;
+            car.style.top = `${y}px`;
+            car.style.left = `${x}px`;
+            car.style.transform = `rotate(${rotate}deg)`;
+            car.style.zIndex = "10";
+            document.querySelector(".parking-container").appendChild(car);
+            console.log(`✅ Adăugată: M${id} la X=${x}, Y=${y}, Width=${width}, Rotate=${rotate}°`);
         }
-
-        async function fetchParkingData() {
-            let sheetID = "1VesxOsLpI112PZk0ZQ6noxfMe79oDfDNuVwkTzm_Idw";
-            let url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
-
-            try {
-                let response = await fetch(url);
-                let text = await response.text();
-                let json = JSON.parse(text.substring(47, text.length - 2));
-
-                let cellValue = json.table.rows[0].c[0];
-                if (!cellValue || !cellValue.v) {
-                    console.error("⚠️ Eroare: Celula din Google Sheets nu conține date!");
-                    return;
-                }
-
-                let codBinar = String(cellValue.v).trim();
-                console.log("✅ Cod Binar extras:", codBinar);
-
-                if (codBinar.length !== 5) {
-                    console.error("⚠️ Eroare: Codul binar nu are exact 5 caractere!");
-                    return;
-                }
-
-                for (let i = 0; i < 5; i++) {
-                    let car = document.getElementById(`m${i+1}`);
-                    if (car) {
-                        car.style.display = codBinar[i] === "1" ? "block" : "none";
-                        console.log(`✅ Loc ${i+1}: ${codBinar[i] === "1" ? "Ocupat" : "Liber"}`);
-                    }
-                }
-            } catch (error) {
-                console.error("❌ Eroare la preluarea datelor:", error);
-            }
-        }
-
-        window.addEventListener("resize", updateCarPositions);
-        window.addEventListener("load", () => {
-            updateCarPositions();
-            fetchParkingData();
-        });
-
-        setInterval(fetchParkingData, 5000);
     </script>
 </body>
 </html>
