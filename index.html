@@ -15,7 +15,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: #2c2c2c; /* Fundal neutru */
+            background: #2c2c2c;
             overflow: hidden;
         }
         .parking-container {
@@ -31,23 +31,31 @@
     </style>
 </head>
 <body>
-    <div class="parking-container">
+    <div class="parking-container" id="parkingContainer">
         <img id="parkingImage" src="ParcareM1.JPG" alt="Parcare">
     </div>
 
     <script>
-        function addCar(id, x, y, width, rotate) {
+        function addCar(id, x, y, width, height, rotate) {
             let car = document.createElement("img");
-            car.src = `m${id}.png`; // Imaginea mașinii
+            car.src = `m${id}.png`;
             car.style.position = "absolute";
             car.style.width = `${width}px`;
+            car.style.height = `${height}px`;
             car.style.top = `${y}px`;
             car.style.left = `${x}px`;
             car.style.transform = `rotate(${rotate}deg)`;
             car.style.zIndex = "10";
             document.querySelector(".parking-container").appendChild(car);
-            console.log(`✅ Adăugată: M${id} la X=${x}, Y=${y}, Width=${width}, Rotate=${rotate}°`);
+            console.log(`✅ Adăugată: M${id} la X=${x}, Y=${y}, Width=${width}, Height=${height}, Rotate=${rotate}°`);
         }
+
+        document.getElementById("parkingContainer").addEventListener("click", function(event) {
+            let rect = event.target.getBoundingClientRect();
+            let x = Math.round(event.clientX - rect.left);
+            let y = Math.round(event.clientY - rect.top);
+            console.log(`📍 Click detectat la: X = ${x}, Y = ${y}`);
+        });
     </script>
 </body>
 </html>
