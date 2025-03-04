@@ -36,8 +36,6 @@
         }
         .car {
             position: absolute;
-            width: 72px; /* Redus cu 10% față de 80px */
-            height: auto;
             display: none; /* Ascuns implicit */
         }
         @media (min-width: 768px) {
@@ -50,35 +48,77 @@
 <body>
     <div class="container">
         <img id="parkingImage" class="parking" src="ParcareM1.JPG" alt="Parcare">
-        <img id="m1" class="car" src="m1.png" style="top: 80%; left: 50%; transform: translateX(-50%);">
-        <img id="m2" class="car" src="m2.png" style="top: 65%; left: 50%; transform: translateX(-50%);">
-        <img id="m3" class="car" src="m3.png" style="top: 50%; left: 50%; transform: translateX(-50%);">
-        <img id="m4" class="car" src="m4.png" style="top: 35%; left: 50%; transform: translateX(-50%);">
-        <img id="m5" class="car" src="m5.png" style="top: 20%; left: 50%; transform: translateX(-50%);">
+        <img id="m1" class="car" src="m1.png">
+        <img id="m2" class="car" src="m2.png">
+        <img id="m3" class="car" src="m3.png">
+        <img id="m4" class="car" src="m4.png">
+        <img id="m5" class="car" src="m5.png">
     </div>
     <script>
+        function updateCarPositions() {
+            let isDesktop = window.innerWidth > 768;
+            let positions = isDesktop ? [
+                { top: "120px", left: "-458px", rotate: "-43deg" },
+                { top: "120px", left: "-363px", rotate: "-43deg" },
+                { top: "120px", left: "-275px", rotate: "-43deg" },
+                { top: "120px", left: "-188px", rotate: "-43deg" },
+                { top: "120px", left: "-103px", rotate: "-43deg" }
+            ] : [
+                { top: "458px", left: "120px", rotate: "-133deg" },
+                { top: "363px", left: "120px", rotate: "-133deg" },
+                { top: "275px", left: "120px", rotate: "-133deg" },
+                { top: "188px", left: "120px", rotate: "-133deg" },
+                { top: "103px", left: "120px", rotate: "-133deg" }
+            ];
+            
+            for (let i = 0; i < 5; i++) {
+                let car = document.getElementById(`m${i+1}`);
+                if (car) {
+                    car.style.top = positions[i].top;
+                    car.style.left = positions[i].left;
+                    car.style.transform = `rotate(${positions[i].rotate})`;
+                }
+            }
+        }
+        
         async function fetchParkingData() {
-            let sheetID = "1VesxOsLpI112PZk0ZQ6noxfMe79oDfDNuVwkTzm_Idw"; // Pune ID-ul Google Sheets
+            let sheetID = "1VesxOsLpI112PZk0ZQ6noxfMe79oDfDNuVwkTzm_Idw"; // Pune ID-ul corect
             let url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
 
             try {
                 let response = await fetch(url);
                 let text = await response.text();
                 let json = JSON.parse(text.substring(47, text.length - 2));
-                let codBinar = json.table.rows[0].c[0].v;
-                console.log("Cod Binar:", codBinar);
+                let codBinar = json.table.rows[0].c[0].v.trim(); // Elimină spațiile albe
+
+                console.log("Cod Binar extras:", codBinar);
+
+                if (codBinar.length !== 5) {
+                    console.error("⚠️ Eroare: Codul binar nu are exact 5 caractere!");
+                    return;
+                }
 
                 for (let i = 0; i < 5; i++) {
                     let car = document.getElementById(`m${i+1}`);
                     if (car) {
-                        car.style.display = codBinar[i] === "1" ? "block" : "none";
+                        if (codBinar[i] === "1") {
+                            car.style.display = "block";
+                            console.log(`✅ Loc ${i+1}: Ocupat (Afișat)`);
+                        } else {
+                            car.style.display = "none";
+                            console.log(`❌ Loc ${i+1}: Liber (Ascuns)`);
+                        }
+                    } else {
+                        console.error(`⚠️ Mașina m${i+1} nu a fost găsită în HTML!`);
                     }
                 }
             } catch (error) {
-                console.error("Eroare la preluarea datelor:", error);
+                console.error("❌ Eroare la preluarea datelor:", error);
             }
         }
-
+        
+        window.addEventListener("resize", updateCarPositions);
+        updateCarPositions();
         setInterval(fetchParkingData, 5000);
         fetchParkingData();
     </script>
