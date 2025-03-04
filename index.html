@@ -37,6 +37,7 @@
         .car {
             position: absolute;
             display: none; /* Ascuns implicit */
+            z-index: 10; /* Asigură că mașinile sunt deasupra parcării */
         }
         @media (min-width: 768px) {
             .parking {
@@ -58,11 +59,11 @@
         function updateCarPositions() {
             let isDesktop = window.innerWidth > 768;
             let positions = isDesktop ? [
-                { top: "120px", left: "-458px", rotate: "-43deg" },
-                { top: "120px", left: "-363px", rotate: "-43deg" },
-                { top: "120px", left: "-275px", rotate: "-43deg" },
-                { top: "120px", left: "-188px", rotate: "-43deg" },
-                { top: "120px", left: "-103px", rotate: "-43deg" }
+                { top: "120px", left: "458px", rotate: "-43deg" },
+                { top: "120px", left: "363px", rotate: "-43deg" },
+                { top: "120px", left: "275px", rotate: "-43deg" },
+                { top: "120px", left: "188px", rotate: "-43deg" },
+                { top: "120px", left: "103px", rotate: "-43deg" }
             ] : [
                 { top: "458px", left: "120px", rotate: "-133deg" },
                 { top: "363px", left: "120px", rotate: "-133deg" },
@@ -74,6 +75,8 @@
             for (let i = 0; i < 5; i++) {
                 let car = document.getElementById(`m${i+1}`);
                 if (car) {
+                    car.style.position = "absolute";
+                    car.style.width = "137px";
                     car.style.top = positions[i].top;
                     car.style.left = positions[i].left;
                     car.style.transform = `rotate(${positions[i].rotate})`;
@@ -89,9 +92,16 @@
                 let response = await fetch(url);
                 let text = await response.text();
                 let json = JSON.parse(text.substring(47, text.length - 2));
-                let codBinar = json.table.rows[0].c[0].v.trim(); // Elimină spațiile albe
 
-                console.log("Cod Binar extras:", codBinar);
+                let cellValue = json.table.rows[0].c[0];
+                if (!cellValue || !cellValue.v) {
+                    console.error("⚠️ Eroare: Celula din Google Sheets nu conține date!");
+                    return;
+                }
+
+                let codBinar = String(cellValue.v).trim();
+
+                console.log("✅ Cod Binar extras:", codBinar);
 
                 if (codBinar.length !== 5) {
                     console.error("⚠️ Eroare: Codul binar nu are exact 5 caractere!");
@@ -101,22 +111,15 @@
                 for (let i = 0; i < 5; i++) {
                     let car = document.getElementById(`m${i+1}`);
                     if (car) {
-                        if (codBinar[i] === "1") {
-                            car.style.display = "block";
-                            console.log(`✅ Loc ${i+1}: Ocupat (Afișat)`);
-                        } else {
-                            car.style.display = "none";
-                            console.log(`❌ Loc ${i+1}: Liber (Ascuns)`);
-                        }
-                    } else {
-                        console.error(`⚠️ Mașina m${i+1} nu a fost găsită în HTML!`);
+                        car.style.display = codBinar[i] === "1" ? "block" : "none";
+                        console.log(`✅ Loc ${i+1}: ${codBinar[i] === "1" ? "Ocupat" : "Liber"}`);
                     }
                 }
             } catch (error) {
                 console.error("❌ Eroare la preluarea datelor:", error);
             }
         }
-        
+
         window.addEventListener("resize", updateCarPositions);
         updateCarPositions();
         setInterval(fetchParkingData, 5000);
