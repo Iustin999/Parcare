@@ -11,25 +11,28 @@
             box-sizing: border-box;
         }
         body {
+            background: url('fundalul.jpg') no-repeat center center fixed;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: #2c2c2c;
             overflow: hidden;
         }
         .parking-container {
             position: relative;
-            width: 1170px;
-            height: 2080px;
+            width: 90vw; /* Parcarea ocupă 90% din lățimea ecranului */
+            max-width: 1170px; /* Să nu depășească dimensiunea originală */
+            aspect-ratio: 1170 / 2080; /* Păstrează proporțiile originale */
         }
         .parking-container img {
             width: 100%;
-            height: 100%;
+            height: auto;
             display: block;
         }
         .car {
             position: absolute;
+            width: 10%; /* Ajustăm dinamic */
             transform-origin: center;
             display: none; /* Implicit, ascunse până când codul binar spune altfel */
             z-index: 10;
@@ -47,23 +50,25 @@
     </div>
 
     <script>
-        // Pozițiile exacte ale mașinilor raportate la imaginea parcării
+        // Poziții relative la dimensiunea imaginii parcării
         const carPositions = [
-            { x: 220, y: 1410, width: 590, height: 600, rotate: -133 },
-            { x: 220, y: 1080, width: 600, height: 600, rotate: -133 },
-            { x: 220, y: 770, width: 580, height: 585, rotate: -133 },
-            { x: 220, y: 450, width: 550, height: 590, rotate: -133 },
-            { x: 220, y: 130, width: 550, height: 590, rotate: -133 }
+            { x: 0.188, y: 0.678, width: 0.50, height: 0.28, rotate: -133 },
+            { x: 0.188, y: 0.519, width: 0.51, height: 0.28, rotate: -133 },
+            { x: 0.188, y: 0.370, width: 0.49, height: 0.28, rotate: -133 },
+            { x: 0.188, y: 0.216, width: 0.47, height: 0.28, rotate: -133 },
+            { x: 0.188, y: 0.062, width: 0.47, height: 0.28, rotate: -133 }
         ];
 
         function updateCarPositions() {
+            let parkingRect = document.getElementById("parkingImage").getBoundingClientRect();
+
             for (let i = 0; i < 5; i++) {
                 let car = document.getElementById(`m${i+1}`);
                 if (car) {
-                    car.style.left = `${carPositions[i].x}px`;
-                    car.style.top = `${carPositions[i].y}px`;
-                    car.style.width = `${carPositions[i].width}px`;
-                    car.style.height = `${carPositions[i].height}px`;
+                    car.style.left = `${parkingRect.left + parkingRect.width * carPositions[i].x}px`;
+                    car.style.top = `${parkingRect.top + parkingRect.height * carPositions[i].y}px`;
+                    car.style.width = `${parkingRect.width * carPositions[i].width}px`;
+                    car.style.height = `${parkingRect.height * carPositions[i].height}px`;
                     car.style.transform = `rotate(${carPositions[i].rotate}deg)`;
                 }
             }
@@ -104,6 +109,7 @@
             }
         }
 
+        window.addEventListener("resize", updateCarPositions);
         updateCarPositions();
         setInterval(fetchParkingData, 5000);
         fetchParkingData();
