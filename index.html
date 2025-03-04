@@ -21,12 +21,18 @@
         }
         .container {
             position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
         }
         .parking {
-            width: 80%; /* Reducem dimensiunea parcării */
-            max-width: 900px; /* Ajustăm pentru a se vedea și fundalul */
+            width: 90%; /* Mărită pe desktop */
+            max-width: 1050px; /* Ajustăm pentru desktop */
             height: auto;
             transition: transform 0.5s ease-in-out;
+            display: block;
+            margin: 0 auto;
         }
         .car {
             position: absolute;
@@ -44,11 +50,11 @@
 <body>
     <div class="container">
         <img id="parkingImage" class="parking" src="ParcareM1.JPG" alt="Parcare">
-        <img id="m1" class="car" src="m1.png" style="top: 80%; left: 30%;">
-        <img id="m2" class="car" src="m2.png" style="top: 65%; left: 30%;">
-        <img id="m3" class="car" src="m3.png" style="top: 50%; left: 30%;">
-        <img id="m4" class="car" src="m4.png" style="top: 35%; left: 30%;">
-        <img id="m5" class="car" src="m5.png" style="top: 20%; left: 30%;">
+        <img id="m1" class="car" src="m1.png" style="top: 80%; left: 50%; transform: translateX(-50%);">
+        <img id="m2" class="car" src="m2.png" style="top: 65%; left: 50%; transform: translateX(-50%);">
+        <img id="m3" class="car" src="m3.png" style="top: 50%; left: 50%; transform: translateX(-50%);">
+        <img id="m4" class="car" src="m4.png" style="top: 35%; left: 50%; transform: translateX(-50%);">
+        <img id="m5" class="car" src="m5.png" style="top: 20%; left: 50%; transform: translateX(-50%);">
     </div>
     <script>
         async function fetchParkingData() {
