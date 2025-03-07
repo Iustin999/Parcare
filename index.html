@@ -18,6 +18,7 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
+            position: relative;
         }
         .canvas-container {
             display: flex;
@@ -34,10 +35,16 @@
         @media (min-width: 768px) {
             .canvas-container {
                 transform: rotate(90deg);
+                width: 100vw; /* Mărim parcarea cu ~10% */
+                height: 100vh;
+            }
+            canvas {
+                max-width: 110%;
+                max-height: 110%;
             }
         }
 
-        /* Stil pentru notificare */
+        /* Notificare care apare doar dacă se schimbă locurile */
         .notification {
             position: fixed;
             top: -50px;
@@ -51,10 +58,37 @@
             font-weight: bold;
             transition: top 0.5s ease-in-out;
         }
+
+        /* Afișează numărul de locuri libere constant */
+        .status-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .status-box {
+                top: auto;
+                bottom: 20px;
+                right: 50%;
+                transform: translateX(50%);
+                font-size: 18px;
+            }
+        }
+
     </style>
 </head>
 <body>
-    <div class="notification" id="notification">Locuri libere: 5</div>
+    <div class="notification" id="notification"></div>
+    <div class="status-box" id="statusBox">Locuri libere: 5</div>
     <div class="canvas-container">
         <canvas id="parkingCanvas"></canvas>
     </div>
@@ -64,8 +98,8 @@
             "m1.png", "m2.png", "m3.png", "m4.png", "m5.png"
         ];
         const parkingImageSrc = "ParcareM1.JPG";
-        
-        // Poziții exacte ale mașinilor raportate la parcarea de referință (1170x2080)
+        let lastFreeSpots = 5;  // Stocăm ultima valoare pentru a detecta modificările
+
         const carPositions = [
             { x: 220, y: 1410, width: 590, height: 600, rotate: -133 },
             { x: 220, y: 1080, width: 600, height: 600, rotate: -133 },
@@ -74,14 +108,24 @@
             { x: 220, y: 130, width: 550, height: 590, rotate: -133 }
         ];
 
-        function showNotification(freeSpots) {
+        function showNotification(change) {
             let notification = document.getElementById("notification");
-            notification.innerText = `Locuri libere: ${freeSpots}`;
+
+            if (change > 0) {
+                notification.innerText = `${change} locuri eliberate recent`;
+            } else {
+                notification.innerText = `${Math.abs(change)} locuri ocupate recent`;
+            }
+
             notification.style.top = "20px";
 
             setTimeout(() => {
                 notification.style.top = "-50px";
             }, 3000);
+        }
+
+        function updateStatusBox(freeSpots) {
+            document.getElementById("statusBox").innerText = `Locuri libere: ${freeSpots}`;
         }
 
         function drawParking(codBinar) {
@@ -114,7 +158,13 @@
                     }
                 }
 
-                showNotification(freeSpots);
+                if (freeSpots !== lastFreeSpots) {
+                    let change = freeSpots - lastFreeSpots;
+                    showNotification(change);
+                    lastFreeSpots = freeSpots;
+                }
+
+                updateStatusBox(freeSpots);
             };
         }
 
