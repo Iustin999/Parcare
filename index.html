@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selectare Parcare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: url('fundalul.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+        .parking-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .parking-card {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s ease;
+            font-size: 20px;
+            width: 300px;
+            text-align: center;
+        }
+        .parking-card.active {
+            background: rgba(0, 150, 0, 0.8); /* Verde doar pentru parcare activă */
+        }
+        .parking-card:hover {
+            transform: scale(1.05);
+        }
+        .parking-card.active:hover {
+            background: rgba(0, 180, 0, 0.9);
+        }
+        .parking-card.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Selectați o parcare</h1>
+
+    <div class="parking-container">
+        <div class="parking-card active" onclick="location.href='parcare1.html'">Universitatea Petrol-Gaze</div>
+        <div class="parking-card disabled">Bulevardul Castanilor</div>
+        <div class="parking-card disabled">Parc Mihai Viteazul</div>
+        <div class="parking-card disabled">Bulevardul Aviatorilor</div>
+        <div class="parking-card disabled">Parc Regele Mihai</div>
+    </div>
+
+</body>
+</html>
