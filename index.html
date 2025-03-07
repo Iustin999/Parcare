@@ -32,8 +32,8 @@
             transition: transform 0.5s ease-in-out;
         }
         @media (min-width: 768px) {
-            canvas {
-                transform: rotate(-90deg);
+            .canvas-container {
+                transform: rotate(90deg);
             }
         }
 
@@ -91,21 +91,11 @@
             const parkingImg = new Image();
             parkingImg.src = parkingImageSrc;
             parkingImg.onload = () => {
-                let isDesktop = window.innerWidth > 768;
-                canvas.width = isDesktop ? parkingImg.height : parkingImg.width;
-                canvas.height = isDesktop ? parkingImg.width : parkingImg.height;
+                canvas.width = parkingImg.width;
+                canvas.height = parkingImg.height;
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                if (isDesktop) {
-                    ctx.save();
-                    ctx.translate(canvas.width / 2, canvas.height / 2);
-                    ctx.rotate(-Math.PI / 2);
-                    ctx.drawImage(parkingImg, -parkingImg.width / 2, -parkingImg.height / 2, parkingImg.width, parkingImg.height);
-                    ctx.restore();
-                } else {
-                    ctx.drawImage(parkingImg, 0, 0, canvas.width, canvas.height);
-                }
+                ctx.drawImage(parkingImg, 0, 0, canvas.width, canvas.height);
 
                 let freeSpots = 5;
 
@@ -116,15 +106,8 @@
                         carImg.src = carImages[i];
                         carImg.onload = () => {
                             ctx.save();
-                            if (isDesktop) {
-                                let rotatedX = canvas.height - carPositions[i].y;
-                                let rotatedY = carPositions[i].x;
-                                ctx.translate(rotatedX + carPositions[i].width / 2, rotatedY + carPositions[i].height / 2);
-                                ctx.rotate((-133 * Math.PI) / 180);
-                            } else {
-                                ctx.translate(carPositions[i].x + carPositions[i].width / 2, carPositions[i].y + carPositions[i].height / 2);
-                                ctx.rotate((carPositions[i].rotate * Math.PI) / 180);
-                            }
+                            ctx.translate(carPositions[i].x + carPositions[i].width / 2, carPositions[i].y + carPositions[i].height / 2);
+                            ctx.rotate((carPositions[i].rotate * Math.PI) / 180);
                             ctx.drawImage(carImg, -carPositions[i].width / 2, -carPositions[i].height / 2, carPositions[i].width, carPositions[i].height);
                             ctx.restore();
                         };
