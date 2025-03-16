@@ -182,7 +182,7 @@
                     return;
                 }
 
-                let codBinar = String(cellValue.v).trim();
+                let codBinar = String(cellValue.v).trim().substring(1); //sterge pe 9
                 if (codBinar.length !== 5) {
                     return;
                 }
