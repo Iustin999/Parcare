@@ -35,7 +35,7 @@
         @media (min-width: 768px) {
             .canvas-container {
                 transform: rotate(90deg);
-                width: 100vw; /* Mărim parcarea cu ~10% */
+                width: 100vw;
                 height: 100vh;
             }
             canvas {
@@ -44,7 +44,6 @@
             }
         }
 
-        /* Notificare care apare doar dacă se schimbă locurile */
         .notification {
             position: fixed;
             top: -50px;
@@ -59,7 +58,6 @@
             transition: top 0.5s ease-in-out;
         }
 
-        /* Afișează numărul de locuri libere constant */
         .status-box {
             position: fixed;
             top: 20px;
@@ -98,7 +96,10 @@
             "m1.png", "m2.png", "m3.png", "m4.png", "m5.png"
         ];
         const parkingImageSrc = "ParcareM1.JPG";
-        let lastFreeSpots = 5;  // Stocăm ultima valoare pentru a detecta modificările
+        const firebaseURL = "https://smartparkingupg-default-rtdb.firebaseio.com";
+        const secret = "gRJBmokssBeRi035x2Xvd7gAPwzoa8s7jQ6PVHBa"; // <-- Înlocuiește cu secretul real
+
+        let lastFreeSpots = 5;
 
         const carPositions = [
             { x: 220, y: 1410, width: 590, height: 600, rotate: -133 },
@@ -169,20 +170,13 @@
         }
 
         async function fetchParkingData() {
-            let sheetID = "1VesxOsLpI112PZk0ZQ6noxfMe79oDfDNuVwkTzm_Idw"; // Pune ID-ul corect
-            let url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
+            const url = `${firebaseURL}/locuri.json?auth=${secret}`;
 
             try {
                 let response = await fetch(url);
-                let text = await response.text();
-                let json = JSON.parse(text.substring(47, text.length - 2));
+                let codBinar = await response.json();
+                codBinar = String(codBinar).trim().substring(1); // scoate 9-ul de la început
 
-                let cellValue = json.table.rows[0].c[0];
-                if (!cellValue || !cellValue.v) {
-                    return;
-                }
-
-                let codBinar = String(cellValue.v).trim().substring(1); //sterge pe 9
                 if (codBinar.length !== 5) {
                     return;
                 }
