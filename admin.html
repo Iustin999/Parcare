@@ -41,7 +41,6 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: all 0.3s ease;
     }
 
     .toggle-mode {
@@ -60,7 +59,7 @@
     }
 
     .active-button {
-      border: 2px solid #00ff00;
+      border: 2px solid #00ff00 !important;
     }
 
     #adminPanel {
@@ -106,12 +105,8 @@
 
   <script>
     const firebaseURL = "https://smartparkingupg-default-rtdb.europe-west1.firebasedatabase.app";
-    const secret = "gRJBmokssBeRi035x2Xvd7gAPwzoa8s7jQ6PVHBa"; // <-- înlocuiește cu secretul tău real Firebase
+    const secret = "gRJBmokssBeRi035x2Xvd7gAPwzoa8s7jQ6PVHBa";
     let isManual = false;
-    let currentCommands = {
-      intrare: "nimic",
-      iesire: "nimic"
-    };
 
     function checkPassword() {
       const parola = document.getElementById("passwordInput").value;
@@ -154,9 +149,6 @@
     function sendCommand(bariera, actiune) {
       if (!isManual) return;
 
-      currentCommands[bariera] = actiune;
-
-      // Trimite doar comanda pentru bariera respectivă
       fetch(`${firebaseURL}/comenzi/${bariera}.json?auth=${secret}`, {
         method: "PUT",
         body: JSON.stringify(actiune)
