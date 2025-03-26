@@ -60,20 +60,26 @@
     }
 
     .active-button {
-      border: 2px solid #000;
-      position: relative;
-    }
-
-    .active-button::after {
-      content: '✅';
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      font-size: 18px;
+      border: 2px solid #00ff00;
     }
 
     #adminPanel {
       display: none;
+    }
+
+    .button-group {
+      margin-top: 20px;
+      padding: 20px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .button-group button {
+      background-color: #2196f3;
+      color: white;
     }
   </style>
 </head>
@@ -89,8 +95,8 @@
     <h2>🔧 Panou Control Parcare</h2>
     <button id="modeButton" class="toggle-mode" onclick="toggleMode()">Automat</button>
 
-    <div id="controlButtons" style="margin-top: 20px; display: none;">
-      <h3 style="color: lightgray;">Control Manual Bariere</h3>
+    <div id="controlButtons" class="button-group">
+      <h3 style="width: 100%; color: lightgray;">Control Manual Bariere</h3>
       <button id="btn1up" class="disabled" onclick="sendCommand('intrare', 'ridica')">Ridică Bariera Intrare</button>
       <button id="btn1down" class="disabled" onclick="sendCommand('intrare', 'coboara')">Coboară Bariera Intrare</button>
       <button id="btn2up" class="disabled" onclick="sendCommand('iesire', 'ridica')">Ridică Bariera Ieșire</button>
@@ -120,13 +126,11 @@
         modeBtn.textContent = "Manual";
         modeBtn.classList.remove("toggle-mode");
         modeBtn.classList.add("manual-mode");
-        document.getElementById("controlButtons").style.display = "block";
         buttons.forEach(btn => btn.classList.remove("disabled"));
       } else {
         modeBtn.textContent = "Automat";
         modeBtn.classList.remove("manual-mode");
         modeBtn.classList.add("toggle-mode");
-        document.getElementById("controlButtons").style.display = "none";
         buttons.forEach(btn => {
           btn.classList.remove("active-button");
           btn.classList.add("disabled");
@@ -136,24 +140,17 @@
 
     function sendCommand(bariera, actiune) {
       if (!isManual) return;
-      const buttons = {
+      const buttonId = {
         'intrare_ridica': 'btn1up',
         'intrare_coboara': 'btn1down',
         'iesire_ridica': 'btn2up',
         'iesire_coboara': 'btn2down'
       };
 
-      // Eliminăm highlight-ul de pe toate
-      Object.values(buttons).forEach(id => {
-        document.getElementById(id).classList.remove("active-button");
-      });
-
-      // Adăugăm highlight-ul pe butonul selectat
       const selected = `${bariera}_${actiune}`;
-      const btnId = buttons[selected];
-      document.getElementById(btnId).classList.add("active-button");
+      const btn = document.getElementById(buttonId[selected]);
+      btn.classList.toggle("active-button");
 
-      // Trimite comanda spre ESP32 (poate fi adaptat cu fetch dacă ai endpoint)
       console.log(`Comandă: ${bariera} - ${actiune}`);
     }
   </script>
