@@ -65,9 +65,10 @@
 
   <div id="adminPanel">
     <h2>🔧 Panou Control Parcare</h2>
-    <button onclick="ridicareBariera(1)">Ridică Bariera 1</button>
-    <button onclick="ridicareBariera(2)">Ridică Bariera 2</button>
-    <button onclick="coboaraBarierele()">Coboară Barierele</button>
+    <button onclick="controlBariera(1, 'ridica')">Ridică Bariera 1</button>
+    <button onclick="controlBariera(1, 'coboara')">Coboară Bariera 1</button>
+    <button onclick="controlBariera(2, 'ridica')">Ridică Bariera 2</button>
+    <button onclick="controlBariera(2, 'coboara')">Coboară Bariera 2</button>
   </div>
 
   <script>
@@ -81,13 +82,10 @@
       }
     }
 
-    function ridicareBariera(nr) {
-      alert("Comandă trimisă: ridicare bariera " + nr);
-      // Aici se poate integra comanda reală către ESP32 sau API în viitor
-    }
-
-    function coboaraBarierele() {
-      alert("Comandă trimisă: coborâre bariere");
+    function controlBariera(nr, actiune) {
+      alert(`Comandă trimisă: ${actiune} bariera ${nr}`);
+      // Aici se poate trimite un fetch real spre ESP32 dacă vrei (vezi mai jos)
+      // fetch(`http://ip_esp/bariera?nr=${nr}&actiune=${actiune}`);
     }
   </script>
 </body>
