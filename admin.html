@@ -40,14 +40,36 @@
       font-size: 16px;
       border: none;
       border-radius: 8px;
-      background-color: #00bcd4;
-      color: white;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: all 0.3s ease;
     }
 
-    button:hover {
-      background-color: #0097a7;
+    .toggle-mode {
+      background-color: #2e7d32;
+      color: white;
+    }
+
+    .manual-mode {
+      background-color: #c62828;
+    }
+
+    .disabled {
+      background-color: grey;
+      cursor: not-allowed;
+      color: #ccc;
+    }
+
+    .active-button {
+      border: 2px solid #000;
+      position: relative;
+    }
+
+    .active-button::after {
+      content: '✅';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      font-size: 18px;
     }
 
     #adminPanel {
@@ -65,13 +87,20 @@
 
   <div id="adminPanel">
     <h2>🔧 Panou Control Parcare</h2>
-    <button onclick="controlBariera(1, 'ridica')">Ridică Bariera 1</button>
-    <button onclick="controlBariera(1, 'coboara')">Coboară Bariera 1</button>
-    <button onclick="controlBariera(2, 'ridica')">Ridică Bariera 2</button>
-    <button onclick="controlBariera(2, 'coboara')">Coboară Bariera 2</button>
+    <button id="modeButton" class="toggle-mode" onclick="toggleMode()">Automat</button>
+
+    <div id="controlButtons" style="margin-top: 20px; display: none;">
+      <h3 style="color: lightgray;">Control Manual Bariere</h3>
+      <button id="btn1up" class="disabled" onclick="sendCommand('intrare', 'ridica')">Ridică Bariera Intrare</button>
+      <button id="btn1down" class="disabled" onclick="sendCommand('intrare', 'coboara')">Coboară Bariera Intrare</button>
+      <button id="btn2up" class="disabled" onclick="sendCommand('iesire', 'ridica')">Ridică Bariera Ieșire</button>
+      <button id="btn2down" class="disabled" onclick="sendCommand('iesire', 'coboara')">Coboară Bariera Ieșire</button>
+    </div>
   </div>
 
   <script>
+    let isManual = false;
+
     function checkPassword() {
       const parola = document.getElementById("passwordInput").value;
       if (parola === "automatica") {
@@ -82,10 +111,50 @@
       }
     }
 
-    function controlBariera(nr, actiune) {
-      alert(`Comandă trimisă: ${actiune} bariera ${nr}`);
-      // Aici se poate trimite un fetch real spre ESP32 dacă vrei (vezi mai jos)
-      // fetch(`http://ip_esp/bariera?nr=${nr}&actiune=${actiune}`);
+    function toggleMode() {
+      isManual = !isManual;
+      const modeBtn = document.getElementById("modeButton");
+      const buttons = document.querySelectorAll("#controlButtons button");
+
+      if (isManual) {
+        modeBtn.textContent = "Manual";
+        modeBtn.classList.remove("toggle-mode");
+        modeBtn.classList.add("manual-mode");
+        document.getElementById("controlButtons").style.display = "block";
+        buttons.forEach(btn => btn.classList.remove("disabled"));
+      } else {
+        modeBtn.textContent = "Automat";
+        modeBtn.classList.remove("manual-mode");
+        modeBtn.classList.add("toggle-mode");
+        document.getElementById("controlButtons").style.display = "none";
+        buttons.forEach(btn => {
+          btn.classList.remove("active-button");
+          btn.classList.add("disabled");
+        });
+      }
+    }
+
+    function sendCommand(bariera, actiune) {
+      if (!isManual) return;
+      const buttons = {
+        'intrare_ridica': 'btn1up',
+        'intrare_coboara': 'btn1down',
+        'iesire_ridica': 'btn2up',
+        'iesire_coboara': 'btn2down'
+      };
+
+      // Eliminăm highlight-ul de pe toate
+      Object.values(buttons).forEach(id => {
+        document.getElementById(id).classList.remove("active-button");
+      });
+
+      // Adăugăm highlight-ul pe butonul selectat
+      const selected = `${bariera}_${actiune}`;
+      const btnId = buttons[selected];
+      document.getElementById(btnId).classList.add("active-button");
+
+      // Trimite comanda spre ESP32 (poate fi adaptat cu fetch dacă ai endpoint)
+      console.log(`Comandă: ${bariera} - ${actiune}`);
     }
   </script>
 </body>
