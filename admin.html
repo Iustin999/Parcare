@@ -140,6 +140,7 @@
 
     function sendCommand(bariera, actiune) {
       if (!isManual) return;
+
       const buttonId = {
         'intrare_ridica': 'btn1up',
         'intrare_coboara': 'btn1down',
@@ -147,9 +148,17 @@
         'iesire_coboara': 'btn2down'
       };
 
+      const relatedButtons = bariera === 'intrare'
+        ? ['btn1up', 'btn1down']
+        : ['btn2up', 'btn2down'];
+
+      relatedButtons.forEach(id => {
+        document.getElementById(id).classList.remove("active-button");
+      });
+
       const selected = `${bariera}_${actiune}`;
       const btn = document.getElementById(buttonId[selected]);
-      btn.classList.toggle("active-button");
+      btn.classList.add("active-button");
 
       console.log(`Comandă: ${bariera} - ${actiune}`);
     }
