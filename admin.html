@@ -106,8 +106,12 @@
 
   <script>
     const firebaseURL = "https://smartparkingupg-default-rtdb.europe-west1.firebasedatabase.app";
-    const secret = "gRJBmokssBeRi035x2Xvd7gAPwzoa8s7jQ6PVHBa"; // <-- secretul Firebase
+    const secret = "SECRETTOKEN"; // <-- înlocuiește cu secretul tău real Firebase
     let isManual = false;
+    let currentCommands = {
+      intrare: "nimic",
+      iesire: "nimic"
+    };
 
     function checkPassword() {
       const parola = document.getElementById("passwordInput").value;
@@ -143,35 +147,41 @@
           btn.classList.remove("active-button");
           btn.classList.add("disabled");
         });
+        resetFirebaseCommands();
       }
     }
 
     function sendCommand(bariera, actiune) {
       if (!isManual) return;
 
-      const buttonId = {
-        'intrare_ridica': 'btn1up',
-        'intrare_coboara': 'btn1down',
-        'iesire_ridica': 'btn2up',
-        'iesire_coboara': 'btn2down'
+      currentCommands[bariera] = actiune;
+
+      // Trimite doar comanda pentru bariera respectivă
+      fetch(`${firebaseURL}/comenzi/${bariera}.json?auth=${secret}`, {
+        method: "PUT",
+        body: JSON.stringify(actiune)
+      });
+
+      const buttonMap = {
+        intrare: ['btn1up', 'btn1down'],
+        iesire: ['btn2up', 'btn2down']
       };
 
-      const relatedButtons = bariera === 'intrare'
-        ? ['btn1up', 'btn1down']
-        : ['btn2up', 'btn2down'];
-
-      relatedButtons.forEach(id => {
+      buttonMap[bariera].forEach(id => {
         document.getElementById(id).classList.remove("active-button");
       });
 
-      const selected = `${bariera}_${actiune}`;
-      const btn = document.getElementById(buttonId[selected]);
-      btn.classList.add("active-button");
+      const targetBtn = actiune === 'ridica'
+        ? document.getElementById(bariera === 'intrare' ? 'btn1up' : 'btn2up')
+        : document.getElementById(bariera === 'intrare' ? 'btn1down' : 'btn2down');
 
-      const comanda = { bariera: bariera, actiune: actiune };
-      fetch(`${firebaseURL}/comanda.json?auth=${secret}`, {
+      targetBtn.classList.add("active-button");
+    }
+
+    function resetFirebaseCommands() {
+      fetch(`${firebaseURL}/comenzi.json?auth=${secret}`, {
         method: "PUT",
-        body: JSON.stringify(comanda)
+        body: JSON.stringify({ intrare: "nimic", iesire: "nimic" })
       });
     }
   </script>
