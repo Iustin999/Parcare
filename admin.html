@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Parcare</title>
+  <style>
+    body {
+      background: url('bgnd_admin.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: white;
+      flex-direction: column;
+    }
+
+    #loginSection, #adminPanel {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
+
+    input[type="password"] {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      width: 200px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 24px;
+      margin: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #00bcd4;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0097a7;
+    }
+
+    #adminPanel {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="loginSection">
+    <h2>🔒 Acces Admin</h2>
+    <input type="password" id="passwordInput" placeholder="Parola admin">
+    <br><br>
+    <button onclick="checkPassword()">Intră</button>
+  </div>
+
+  <div id="adminPanel">
+    <h2>🔧 Panou Control Parcare</h2>
+    <button onclick="ridicareBariera(1)">Ridică Bariera 1</button>
+    <button onclick="ridicareBariera(2)">Ridică Bariera 2</button>
+    <button onclick="coboaraBarierele()">Coboară Barierele</button>
+  </div>
+
+  <script>
+    function checkPassword() {
+      const parola = document.getElementById("passwordInput").value;
+      if (parola === "automatica") {
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+      } else {
+        alert("Parolă greșită!");
+      }
+    }
+
+    function ridicareBariera(nr) {
+      alert("Comandă trimisă: ridicare bariera " + nr);
+      // Aici se poate integra comanda reală către ESP32 sau API în viitor
+    }
+
+    function coboaraBarierele() {
+      alert("Comandă trimisă: coborâre bariere");
+    }
+  </script>
+</body>
+</html>
