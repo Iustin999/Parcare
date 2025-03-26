@@ -105,6 +105,9 @@
   </div>
 
   <script>
+    const firebaseURL = "https://YOUR_PROJECT.firebaseio.com";
+    const secret = "YOUR_SECRET_TOKEN";
+
     let isManual = false;
 
     function checkPassword() {
@@ -121,6 +124,13 @@
       isManual = !isManual;
       const modeBtn = document.getElementById("modeButton");
       const buttons = document.querySelectorAll("#controlButtons button");
+
+      // Trimitem modul în Firebase
+      const modNou = isManual ? "manual" : "automat";
+      fetch(`${firebaseURL}/mod.json?auth=${secret}`, {
+        method: "PUT",
+        body: JSON.stringify(modNou)
+      });
 
       if (isManual) {
         modeBtn.textContent = "Manual";
@@ -160,7 +170,11 @@
       const btn = document.getElementById(buttonId[selected]);
       btn.classList.add("active-button");
 
-      console.log(`Comandă: ${bariera} - ${actiune}`);
+      // Trimitem comanda in Firebase
+      fetch(`${firebaseURL}/comanda.json?auth=${secret}`, {
+        method: "PUT",
+        body: JSON.stringify({ bariera, actiune })
+      });
     }
   </script>
 </body>
