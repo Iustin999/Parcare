@@ -1,194 +1,179 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parcare Generată</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: url('fundalul.jpg') no-repeat center center fixed;
-            background-size: cover;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-        }
-        .canvas-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 90vw;
-            height: 90vh;
-        }
-        canvas {
-            max-width: 100%;
-            max-height: 100%;
-            transition: transform 0.5s ease-in-out;
-        }
-        @media (min-width: 768px) {
-            .canvas-container {
-                transform: rotate(90deg);
-                width: 100vw;
-                height: 100vh;
-            }
-            canvas {
-                max-width: 110%;
-                max-height: 110%;
-            }
-        }
+  <meta charset="UTF-8">
+  <title>Admin Parcare</title>
+  <style>
+    body {
+      background: url('bgnd_admin.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: white;
+      flex-direction: column;
+    }
 
-        .notification {
-            position: fixed;
-            top: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            transition: top 0.5s ease-in-out;
-        }
+    #loginSection, #adminPanel {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
 
-        .status-box {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 15px 25px;
-            border-radius: 12px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            text-align: center;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-        }
+    input[type="password"] {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      width: 200px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
 
-        @media (max-width: 768px) {
-            .status-box {
-                top: auto;
-                bottom: 20px;
-                right: 50%;
-                transform: translateX(50%);
-                font-size: 18px;
-            }
-        }
+    button {
+      padding: 12px 24px;
+      margin: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
 
-    </style>
+    .toggle-mode {
+      background-color: #2e7d32;
+      color: white;
+    }
+
+    .manual-mode {
+      background-color: #c62828;
+    }
+
+    .disabled {
+      background-color: grey;
+      cursor: not-allowed;
+      color: #ccc;
+    }
+
+    .active-button {
+      border: 2px solid #00ff00;
+    }
+
+    #adminPanel {
+      display: none;
+    }
+
+    .button-group {
+      margin-top: 20px;
+      padding: 20px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .button-group button {
+      background-color: #2196f3;
+      color: white;
+    }
+  </style>
 </head>
 <body>
-    <div class="notification" id="notification"></div>
-    <div class="status-box" id="statusBox">Locuri libere: 5</div>
-    <div class="canvas-container">
-        <canvas id="parkingCanvas"></canvas>
+  <div id="loginSection">
+    <h2>🔒 Acces Admin</h2>
+    <input type="password" id="passwordInput" placeholder="Parola admin">
+    <br><br>
+    <button onclick="checkPassword()">Intră</button>
+  </div>
+
+  <div id="adminPanel">
+    <h2>🔧 Panou Control Parcare</h2>
+    <button id="modeButton" class="toggle-mode" onclick="toggleMode()">Automat</button>
+
+    <div id="controlButtons" class="button-group">
+      <h3 style="width: 100%; color: lightgray;">Control Manual Bariere</h3>
+      <button id="btn1up" class="disabled" onclick="sendCommand('intrare', 'ridica')">Ridică Bariera Intrare</button>
+      <button id="btn1down" class="disabled" onclick="sendCommand('intrare', 'coboara')">Coboară Bariera Intrare</button>
+      <button id="btn2up" class="disabled" onclick="sendCommand('iesire', 'ridica')">Ridică Bariera Ieșire</button>
+      <button id="btn2down" class="disabled" onclick="sendCommand('iesire', 'coboara')">Coboară Bariera Ieșire</button>
     </div>
+  </div>
 
-    <script>
-        const carImages = [
-            "m1.png", "m2.png", "m3.png", "m4.png", "m5.png"
-        ];
-        const parkingImageSrc = "ParcareM1.JPG";
-        const firebaseURL = "https://smartparkingupg-default-rtdb.europe-west1.firebasedatabase.app";
-        const secret = "gRJBmokssBeRi035x2Xvd7gAPwzoa8s7jQ6PVHBa"; // <-- Înlocuiește cu secretul real
+  <script>
+    const firebaseURL = "https://smartparkingupg-default-rtdb.europe-west1.firebasedatabase.app";
+    const secret = "gRJBmokssBeRi035x2Xvd7gAPwzoa8s7jQ6PVHBa"; // <-- secretul Firebase
+    let isManual = false;
 
-        let lastFreeSpots = 5;
+    function checkPassword() {
+      const parola = document.getElementById("passwordInput").value;
+      if (parola === "automatica") {
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+      } else {
+        alert("Parolă greșită!");
+      }
+    }
 
-        const carPositions = [
-            { x: 220, y: 1410, width: 590, height: 600, rotate: -133 },
-            { x: 220, y: 1080, width: 600, height: 600, rotate: -133 },
-            { x: 220, y: 770, width: 580, height: 585, rotate: -133 },
-            { x: 220, y: 450, width: 550, height: 590, rotate: -133 },
-            { x: 220, y: 130, width: 550, height: 590, rotate: -133 }
-        ];
+    function toggleMode() {
+      isManual = !isManual;
+      const modeBtn = document.getElementById("modeButton");
+      const buttons = document.querySelectorAll("#controlButtons button");
 
-        function showNotification(change) {
-            let notification = document.getElementById("notification");
+      const newMode = isManual ? "manual" : "automat";
+      fetch(`${firebaseURL}/mod.json?auth=${secret}`, {
+        method: "PUT",
+        body: JSON.stringify(newMode)
+      });
 
-            if (change > 0) {
-                notification.innerText = `${change} locuri eliberate recent`;
-            } else {
-                notification.innerText = `${Math.abs(change)} locuri ocupate recent`;
-            }
+      if (isManual) {
+        modeBtn.textContent = "Manual";
+        modeBtn.classList.remove("toggle-mode");
+        modeBtn.classList.add("manual-mode");
+        buttons.forEach(btn => btn.classList.remove("disabled"));
+      } else {
+        modeBtn.textContent = "Automat";
+        modeBtn.classList.remove("manual-mode");
+        modeBtn.classList.add("toggle-mode");
+        buttons.forEach(btn => {
+          btn.classList.remove("active-button");
+          btn.classList.add("disabled");
+        });
+      }
+    }
 
-            notification.style.top = "20px";
+    function sendCommand(bariera, actiune) {
+      if (!isManual) return;
 
-            setTimeout(() => {
-                notification.style.top = "-50px";
-            }, 3000);
-        }
+      const buttonId = {
+        'intrare_ridica': 'btn1up',
+        'intrare_coboara': 'btn1down',
+        'iesire_ridica': 'btn2up',
+        'iesire_coboara': 'btn2down'
+      };
 
-        function updateStatusBox(freeSpots) {
-            document.getElementById("statusBox").innerText = `Locuri libere: ${freeSpots}`;
-        }
+      const relatedButtons = bariera === 'intrare'
+        ? ['btn1up', 'btn1down']
+        : ['btn2up', 'btn2down'];
 
-        function drawParking(codBinar) {
-            const canvas = document.getElementById("parkingCanvas");
-            const ctx = canvas.getContext("2d");
+      relatedButtons.forEach(id => {
+        document.getElementById(id).classList.remove("active-button");
+      });
 
-            const parkingImg = new Image();
-            parkingImg.src = parkingImageSrc;
-            parkingImg.onload = () => {
-                canvas.width = parkingImg.width;
-                canvas.height = parkingImg.height;
+      const selected = `${bariera}_${actiune}`;
+      const btn = document.getElementById(buttonId[selected]);
+      btn.classList.add("active-button");
 
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(parkingImg, 0, 0, canvas.width, canvas.height);
-
-                let freeSpots = 5;
-
-                for (let i = 0; i < carPositions.length; i++) {
-                    if (codBinar[i] === "1") {
-                        freeSpots--;
-                        const carImg = new Image();
-                        carImg.src = carImages[i];
-                        carImg.onload = () => {
-                            ctx.save();
-                            ctx.translate(carPositions[i].x + carPositions[i].width / 2, carPositions[i].y + carPositions[i].height / 2);
-                            ctx.rotate((carPositions[i].rotate * Math.PI) / 180);
-                            ctx.drawImage(carImg, -carPositions[i].width / 2, -carPositions[i].height / 2, carPositions[i].width, carPositions[i].height);
-                            ctx.restore();
-                        };
-                    }
-                }
-
-                if (freeSpots !== lastFreeSpots) {
-                    let change = freeSpots - lastFreeSpots;
-                    showNotification(change);
-                    lastFreeSpots = freeSpots;
-                }
-
-                updateStatusBox(freeSpots);
-            };
-        }
-
-        async function fetchParkingData() {
-            const url = `${firebaseURL}/locuri.json?auth=${secret}`;
-
-            try {
-                let response = await fetch(url);
-                let codBinar = await response.json();
-                codBinar = String(codBinar).trim().substring(1); // scoate 9-ul de la început
-
-                if (codBinar.length !== 5) {
-                    return;
-                }
-
-                drawParking(codBinar);
-            } catch (error) {
-                console.error("❌ Eroare la preluarea datelor:", error);
-            }
-        }
-
-        fetchParkingData();
-        setInterval(fetchParkingData, 3000);
-    </script>
+      const comanda = { bariera: bariera, actiune: actiune };
+      fetch(`${firebaseURL}/comanda.json?auth=${secret}`, {
+        method: "PUT",
+        body: JSON.stringify(comanda)
+      });
+    }
+  </script>
 </body>
 </html>
