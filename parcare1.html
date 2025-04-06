@@ -207,7 +207,10 @@
       fetch(`${firebaseURL}/erori.json?auth=${secret}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(mesaj)
+        body: JSON.stringify({
+  mesaj: mesaj,
+  timestamp: new Date().toISOString()
+})
       }).then(() => alert("✅ Problema a fost raportată."));
     }
   </script>
