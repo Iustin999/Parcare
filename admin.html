@@ -16,7 +16,6 @@
       color: white;
       flex-direction: column;
     }
-
     #loginSection, #adminPanel {
       background: rgba(0, 0, 0, 0.6);
       padding: 30px;
@@ -24,7 +23,6 @@
       text-align: center;
       box-shadow: 0 0 15px rgba(0,0,0,0.4);
     }
-
     input[type="password"] {
       padding: 10px;
       border-radius: 8px;
@@ -33,7 +31,6 @@
       margin-top: 10px;
       font-size: 16px;
     }
-
     button {
       padding: 12px 24px;
       margin: 10px;
@@ -42,30 +39,24 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
     .toggle-mode {
       background-color: #2e7d32;
       color: white;
     }
-
     .manual-mode {
       background-color: #c62828;
     }
-
     .disabled {
       background-color: grey;
       cursor: not-allowed;
       color: #ccc;
     }
-
     .active-button {
       border: 2px solid #00ff00 !important;
     }
-
     #adminPanel {
       display: none;
     }
-
     .button-group {
       margin-top: 20px;
       padding: 20px;
@@ -75,10 +66,28 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-
     .button-group button {
       background-color: #2196f3;
       color: white;
+    }
+    #eroriContainer {
+      margin-top: 30px;
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      text-align: left;
+      width: 100%;
+    }
+    #eroriContainer ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    #eroriContainer li {
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding-bottom: 5px;
     }
   </style>
 </head>
@@ -101,18 +110,26 @@
       <button id="btn2up" class="disabled" onclick="sendCommand('iesire', 'ridica')">Ridică Bariera Ieșire</button>
       <button id="btn2down" class="disabled" onclick="sendCommand('iesire', 'coboara')">Coboară Bariera Ieșire</button>
     </div>
+
+    <div id="eroriContainer">
+      <h3>📢 Mesaje raportate</h3>
+      <ul id="listaErori"><li>Se încarcă...</li></ul>
+      <button onclick="stergeErori()">🗑️ Șterge toate mesajele</button>
+    </div>
   </div>
 
   <script>
     const firebaseURL = "https://smartparkingupg-default-rtdb.europe-west1.firebasedatabase.app";
     const secret = "gRJBmokssBeRi035x2Xvd7gAPwzoa8s7jQ6PVHBa";
     let isManual = false;
+    let intervalErori = null;
 
     function checkPassword() {
       const parola = document.getElementById("passwordInput").value;
       if (parola === "automatica") {
         document.getElementById("loginSection").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
+        if (document.visibilityState === "visible") startErrorReading();
       } else {
         alert("Parolă greșită!");
       }
@@ -122,8 +139,8 @@
       isManual = !isManual;
       const modeBtn = document.getElementById("modeButton");
       const buttons = document.querySelectorAll("#controlButtons button");
-
       const newMode = isManual ? "manual" : "automat";
+
       fetch(`${firebaseURL}/mod.json?auth=${secret}`, {
         method: "PUT",
         body: JSON.stringify(newMode)
@@ -176,6 +193,53 @@
         body: JSON.stringify({ intrare: "nimic", iesire: "nimic" })
       });
     }
+
+    function incarcaErori() {
+      fetch(`${firebaseURL}/erori.json?auth=${secret}`)
+        .then(res => res.json())
+        .then(data => {
+          const lista = document.getElementById("listaErori");
+          lista.innerHTML = "";
+          if (!data) {
+            lista.innerHTML = "<li>Nicio eroare raportată</li>";
+            return;
+          }
+
+          Object.entries(data).forEach(([key, mesaj]) => {
+            const li = document.createElement("li");
+            const timp = new Date(parseInt(key)).toLocaleString();
+            li.innerHTML = `<strong>${timp}:</strong> ${mesaj}`;
+            lista.appendChild(li);
+          });
+        });
+    }
+
+    function stergeErori() {
+      fetch(`${firebaseURL}/erori.json?auth=${secret}`, { method: "DELETE" })
+        .then(() => incarcaErori());
+    }
+
+    function startErrorReading() {
+      if (!intervalErori) {
+        incarcaErori();
+        intervalErori = setInterval(incarcaErori, 3000);
+      }
+    }
+
+    function stopErrorReading() {
+      if (intervalErori) {
+        clearInterval(intervalErori);
+        intervalErori = null;
+      }
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && document.getElementById("adminPanel").style.display === "block") {
+        startErrorReading();
+      } else {
+        stopErrorReading();
+      }
+    });
   </script>
 </body>
 </html>
