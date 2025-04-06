@@ -55,28 +55,43 @@
       z-index: 10;
     }
     .status-box {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 15px 25px;
-      border-radius: 12px;
-      font-size: 20px;
-      font-weight: bold;
-      color: #333;
-      text-align: center;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-      z-index: 10;
-    }
-    @media (max-width: 768px) {
-      .status-box {
-        top: auto;
-        bottom: 20px;
-        right: 50%;
-        transform: translateX(50%);
-        font-size: 18px;
-      }
-    }
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 15px 25px;
+  border-radius: 12px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+@media (min-width: 768px) {
+  .status-box {
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+    font-size: 32px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px 35px;
+  }
+}
+
+@media (max-width: 768px) {
+  .status-box {
+    top: auto;
+    bottom: 20px;
+    right: 50%;
+    left: auto;
+    transform: translateX(50%);
+    font-size: 18px;
+  }
+}
+
     .error-button {
       position: fixed;
       bottom: 20px;
