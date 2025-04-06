@@ -201,18 +201,19 @@
     if (document.visibilityState === "visible") startReading();
 
     function raporteazaEroare() {
-      const mesaj = prompt("Describeti problema observată:");
-      if (!mesaj) return;
+  const mesaj = prompt("Describeti problema observată:");
+  if (!mesaj) return;
 
-      fetch(`${firebaseURL}/erori.json?auth=${secret}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-  mesaj: mesaj,
-  timestamp: new Date().toISOString()
-})
-      }).then(() => alert("✅ Problema a fost raportată."));
-    }
+  fetch(`${firebaseURL}/erori.json?auth=${secret}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      mesaj: mesaj,
+      timestamp: new Date().toISOString()
+    })
+  }).then(() => alert("✅ Problema a fost raportată."));
+}
+
   </script>
 </body>
 </html>
