@@ -1,195 +1,215 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parcare Generată</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: url('fundalul.jpg') no-repeat center center fixed;
-            background-size: cover;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-        }
-        .canvas-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 90vw;
-            height: 90vh;
-        }
-        canvas {
-            max-width: 100%;
-            max-height: 100%;
-            transition: transform 0.5s ease-in-out;
-        }
-        @media (min-width: 768px) {
-            .canvas-container {
-                transform: rotate(90deg);
-                width: 100vw; /* Mărim parcarea cu ~10% */
-                height: 100vh;
-            }
-            canvas {
-                max-width: 110%;
-                max-height: 110%;
-            }
-        }
-
-        /* Notificare care apare doar dacă se schimbă locurile */
-        .notification {
-            position: fixed;
-            top: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            transition: top 0.5s ease-in-out;
-        }
-
-        /* Afișează numărul de locuri libere constant */
-        .status-box {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 15px 25px;
-            border-radius: 12px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            text-align: center;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        @media (max-width: 768px) {
-            .status-box {
-                top: auto;
-                bottom: 20px;
-                right: 50%;
-                transform: translateX(50%);
-                font-size: 18px;
-            }
-        }
-
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parcare Generată</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: url('fundalul.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      flex-direction: column;
+    }
+    .canvas-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 90vw;
+      height: 90vh;
+    }
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+      transition: transform 0.5s ease-in-out;
+    }
+    @media (min-width: 768px) {
+      .canvas-container {
+        transform: rotate(90deg);
+        width: 100vw;
+        height: 100vh;
+      }
+      canvas {
+        max-width: 110%;
+        max-height: 110%;
+      }
+    }
+    .notification {
+      position: fixed;
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      transition: top 0.5s ease-in-out;
+      z-index: 10;
+    }
+    .status-box {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 15px 25px;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+    }
+    @media (max-width: 768px) {
+      .status-box {
+        top: auto;
+        bottom: 20px;
+        right: 50%;
+        transform: translateX(50%);
+        font-size: 18px;
+      }
+    }
+    .error-button {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background-color: #ff5555;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      z-index: 10;
+    }
+  </style>
 </head>
 <body>
-    <div class="notification" id="notification"></div>
-    <div class="status-box" id="statusBox">Locuri libere: 5</div>
-    <div class="canvas-container">
-        <canvas id="parkingCanvas"></canvas>
-    </div>
 
-    <script>
-    const carImages = [
-        "m1.png", "m2.png", "m3.png", "m4.png", "m5.png"
-    ];
+  <div class="notification" id="notification"></div>
+  <div class="status-box" id="statusBox">Locuri libere: 5</div>
+  <div class="canvas-container">
+    <canvas id="parkingCanvas"></canvas>
+  </div>
+  <button class="error-button" onclick="raporteazaEroare()">⚠️ Raportează o problemă</button>
+
+  <script>
+    const carImages = ["m1.png", "m2.png", "m3.png", "m4.png", "m5.png"];
     const parkingImageSrc = "ParcareM1.JPG";
     let lastFreeSpots = 5;
+    let interval = null;
 
     const carPositions = [
-        { x: 220, y: 1410, width: 590, height: 600, rotate: -133 },
-        { x: 220, y: 1080, width: 600, height: 600, rotate: -133 },
-        { x: 220, y: 770, width: 580, height: 585, rotate: -133 },
-        { x: 220, y: 450, width: 550, height: 590, rotate: -133 },
-        { x: 220, y: 130, width: 550, height: 590, rotate: -133 }
+      { x: 220, y: 1410, width: 590, height: 600, rotate: -133 },
+      { x: 220, y: 1080, width: 600, height: 600, rotate: -133 },
+      { x: 220, y: 770, width: 580, height: 585, rotate: -133 },
+      { x: 220, y: 450, width: 550, height: 590, rotate: -133 },
+      { x: 220, y: 130, width: 550, height: 590, rotate: -133 }
     ];
 
     const firebaseURL = "https://smartparkingupg-default-rtdb.europe-west1.firebasedatabase.app";
     const secret = "gRJBmokssBeRi035x2Xvd7gAPwzoa8s7jQ6PVHBa";
 
     function showNotification(change) {
-        let notification = document.getElementById("notification");
-
-        if (change > 0) {
-            notification.innerText = `${change} locuri eliberate recent`;
-        } else {
-            notification.innerText = `${Math.abs(change)} locuri ocupate recent`;
-        }
-
-        notification.style.top = "20px";
-
-        setTimeout(() => {
-            notification.style.top = "-50px";
-        }, 3000);
+      let notification = document.getElementById("notification");
+      notification.innerText = change > 0 ? `${change} locuri eliberate recent` : `${Math.abs(change)} locuri ocupate recent`;
+      notification.style.top = "20px";
+      setTimeout(() => { notification.style.top = "-50px"; }, 3000);
     }
 
     function updateStatusBox(freeSpots) {
-        document.getElementById("statusBox").innerText = `Locuri libere: ${freeSpots}`;
+      document.getElementById("statusBox").innerText = `Locuri libere: ${freeSpots}`;
     }
 
     function drawParking(codBinar) {
-        const canvas = document.getElementById("parkingCanvas");
-        const ctx = canvas.getContext("2d");
+      const canvas = document.getElementById("parkingCanvas");
+      const ctx = canvas.getContext("2d");
+      const parkingImg = new Image();
+      parkingImg.src = parkingImageSrc;
+      parkingImg.onload = () => {
+        canvas.width = parkingImg.width;
+        canvas.height = parkingImg.height;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(parkingImg, 0, 0, canvas.width, canvas.height);
 
-        const parkingImg = new Image();
-        parkingImg.src = parkingImageSrc;
-        parkingImg.onload = () => {
-            canvas.width = parkingImg.width;
-            canvas.height = parkingImg.height;
+        let freeSpots = 5;
+        for (let i = 0; i < carPositions.length; i++) {
+          if (codBinar[i] === "1") {
+            freeSpots--;
+            const carImg = new Image();
+            carImg.src = carImages[i];
+            carImg.onload = () => {
+              ctx.save();
+              ctx.translate(carPositions[i].x + carPositions[i].width / 2, carPositions[i].y + carPositions[i].height / 2);
+              ctx.rotate((carPositions[i].rotate * Math.PI) / 180);
+              ctx.drawImage(carImg, -carPositions[i].width / 2, -carPositions[i].height / 2, carPositions[i].width, carPositions[i].height);
+              ctx.restore();
+            };
+          }
+        }
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(parkingImg, 0, 0, canvas.width, canvas.height);
+        if (freeSpots !== lastFreeSpots) {
+          showNotification(freeSpots - lastFreeSpots);
+          lastFreeSpots = freeSpots;
+        }
 
-            let freeSpots = 5;
-
-            for (let i = 0; i < carPositions.length; i++) {
-                if (codBinar[i] === "1") {
-                    freeSpots--;
-                    const carImg = new Image();
-                    carImg.src = carImages[i];
-                    carImg.onload = () => {
-                        ctx.save();
-                        ctx.translate(carPositions[i].x + carPositions[i].width / 2, carPositions[i].y + carPositions[i].height / 2);
-                        ctx.rotate((carPositions[i].rotate * Math.PI) / 180);
-                        ctx.drawImage(carImg, -carPositions[i].width / 2, -carPositions[i].height / 2, carPositions[i].width, carPositions[i].height);
-                        ctx.restore();
-                    };
-                }
-            }
-
-            if (freeSpots !== lastFreeSpots) {
-                let change = freeSpots - lastFreeSpots;
-                showNotification(change);
-                lastFreeSpots = freeSpots;
-            }
-
-            updateStatusBox(freeSpots);
-        };
+        updateStatusBox(freeSpots);
+      };
     }
 
     async function fetchParkingData() {
-        const url = `${firebaseURL}/locuri.json?auth=${secret}`;
-        try {
-            let response = await fetch(url);
-            let codBinar = await response.json();
-
-            if (!codBinar || codBinar.length !== 5) {
-                console.warn("⚠️ Cod binar invalid sau lipsă.");
-                return;
-            }
-
-            drawParking(codBinar);
-        } catch (error) {
-            console.error("❌ Eroare la preluarea datelor din Firebase:", error);
-        }
+      const url = `${firebaseURL}/locuri.json?auth=${secret}`;
+      try {
+        let response = await fetch(url);
+        let codBinar = await response.json();
+        if (!codBinar || codBinar.length !== 5) return;
+        drawParking(codBinar);
+      } catch (error) {
+        console.error("❌ Eroare la preluarea datelor din Firebase:", error);
+      }
     }
 
-    fetchParkingData();
-    setInterval(fetchParkingData, 3000);
-</script>
+    function startReading() {
+      if (!interval) {
+        fetchParkingData();
+        interval = setInterval(fetchParkingData, 1000); // la 1 sec
+        console.log("▶️ Citirea Firebase pornită");
+      }
+    }
+
+    function stopReading() {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+        console.log("⏹️ Citirea Firebase oprită (tab inactiv)");
+      }
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      document.visibilityState === "visible" ? startReading() : stopReading();
+    });
+
+    if (document.visibilityState === "visible") startReading();
+
+    function raporteazaEroare() {
+      const mesaj = prompt("Describeti problema observată:");
+      if (!mesaj) return;
+
+      fetch(`${firebaseURL}/erori.json?auth=${secret}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(mesaj)
+      }).then(() => alert("✅ Problema a fost raportată."));
+    }
+  </script>
 </body>
 </html>
