@@ -89,7 +89,7 @@
       font-size: 16px;
       cursor: pointer;
       box-shadow: 0 0 10px rgba(0,0,0,0.4);
-      z-index: 10;
+      z-index: 10; }
   @media (max-width: 768px) {
   .error-button {
     bottom: auto;
@@ -97,7 +97,7 @@
     left: 20px;
   }
 }
-    }
+    
   </style>
 </head>
 <body>
@@ -181,7 +181,7 @@
         if (!codBinar || codBinar.length !== 5) return;
         drawParking(codBinar);
       } catch (error) {
-        console.error("❌ Eroare la preluarea datelor din Firebase:", error);
+        console.error("Eroare la preluarea datelor din Firebase:", error);
       }
     }
 
@@ -189,7 +189,7 @@
       if (!interval) {
         fetchParkingData();
         interval = setInterval(fetchParkingData, 1000); // la 1 sec
-        console.log("▶️ Citirea Firebase pornită");
+        console.log("Citirea Firebase pornită");
       }
     }
 
@@ -197,7 +197,7 @@
       if (interval) {
         clearInterval(interval);
         interval = null;
-        console.log("⏹️ Citirea Firebase oprită (tab inactiv)");
+        console.log("Citirea Firebase oprită (tab inactiv)");
       }
     }
 
@@ -208,7 +208,7 @@
     if (document.visibilityState === "visible") startReading();
 
     function raporteazaEroare() {
-  const mesaj = prompt("Describeti problema observată:");
+  const mesaj = prompt("Descrieti problema observată:");
   if (!mesaj) return;
 
   fetch(`${firebaseURL}/erori.json?auth=${secret}`, {
@@ -218,7 +218,7 @@
       mesaj: mesaj,
       timestamp: new Date().toISOString()
     })
-  }).then(() => alert("✅ Problema a fost raportată."));
+  }).then(() => alert("Problema a fost raportată."));
 }
 
   </script>
