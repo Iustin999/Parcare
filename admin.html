@@ -205,12 +205,14 @@
             return;
           }
 
-          Object.entries(data).forEach(([key, mesaj]) => {
-            const li = document.createElement("li");
-            const timp = new Date(parseInt(key)).toLocaleString();
-            li.innerHTML = `<strong>${timp}:</strong> ${mesaj}`;
-            lista.appendChild(li);
-          });
+          Object.values(data).forEach(entry => {
+  const li = document.createElement("li");
+  const timp = entry.timestamp
+    ? new Date(entry.timestamp).toLocaleString()
+    : "(fără dată)";
+  li.innerHTML = `<strong>${timp}:</strong> ${entry.mesaj || entry}`;
+  lista.appendChild(li);
+});
         });
     }
 
